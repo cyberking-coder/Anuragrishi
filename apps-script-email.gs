@@ -1,21 +1,19 @@
-/**
- * KOSH — Know Thyself retreat booking emails
- * Google Apps Script Web App. Receives booking data from the website and
- * emails the guest (and you) on payment success / failure — free, via Gmail.
- *
- * SETUP
- * 1. Go to https://script.google.com  →  New project.
- * 2. Delete the sample code, paste this whole file.
- * 3. (Optional) change ADMIN_EMAIL below.
- * 4. Deploy → New deployment → type "Web app".
- *      - Execute as:      Me
- *      - Who has access:  Anyone
- *    Click Deploy, authorize access (allow Gmail send) when prompted.
- * 5. Copy the Web app URL ending in /exec and send it to be pasted into the site.
- *
- * To change the emails later: edit here, then Deploy → Manage deployments →
- * edit the existing deployment → Version: New version → Deploy (URL stays the same).
- */
+// KOSH — Know Thyself retreat booking emails
+// Google Apps Script Web App. Receives booking data from the website and
+// emails the guest (and you) on payment success / failure — free, via Gmail.
+//
+// SETUP
+// 1. Go to https://script.google.com  ->  New project.
+// 2. Delete the sample code, paste this whole file.
+// 3. (Optional) change ADMIN_EMAIL below.
+// 4. Deploy -> New deployment -> type "Web app".
+//      - Execute as:      Me
+//      - Who has access:  Anyone
+//    Click Deploy, authorize access (allow Gmail send) when prompted.
+// 5. Copy the Web app URL ending in /exec and send it to be pasted into the site.
+//
+// To change the emails later: edit here, then Deploy -> Manage deployments ->
+// edit the existing deployment -> Version: New version -> Deploy (URL stays the same).
 
 var ADMIN_EMAIL = 'ar.happinessmovement@gmail.com'; // you get a copy of every booking
 var FROM_NAME   = 'KOSH · Know Thyself Retreat';
