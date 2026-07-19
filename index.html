@@ -7,7 +7,7 @@
   <title>Know Thyself — Residential Retreat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -44,38 +44,61 @@
   <main id="top">
 
     <!-- ===================== HERO ===================== -->
-    <section class="hero" id="hero">
-      <video class="hero-bg" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-        <source src="hero-bg%20(2).mp4" type="video/mp4" />
-      </video>
-      <div class="hero-scrim" aria-hidden="true"></div>
+    <div class="hero-wrap">
+      <section class="hero" id="hero">
+        <video class="hero-bg" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="hero-bg%20(2).mp4" type="video/mp4" />
+        </video>
+        <div class="hero-scrim" aria-hidden="true"></div>
 
-      <div class="hero-content">
-        <div class="pill" data-reveal>Private · Personal · Transformative</div>
+        <div class="hero-content">
+          <div class="pill" data-reveal><span class="pill-ico">✦</span> Private · Personal · Transformative</div>
 
-        <h1 class="hero-title">
-          <span class="line"><span>Learn from</span></span>
-          <span class="line"><span><em>India's No.1</em></span></span>
-          <span class="line"><span>Human Potential Coach</span></span>
-        </h1>
+          <h1 class="hero-title">
+            <span class="line"><span>Find Your</span></span>
+            <span class="line"><span>Inner Peace</span></span>
+            <span class="line"><span>Naturally</span></span>
+          </h1>
 
-        <p class="hero-sub" data-reveal>
-          A private, residential retreat that restores your body, mind, and spirit —
-          and reconnects you with the part of you that still longs to live fully.
-        </p>
+          <p class="hero-sub" data-reveal>
+            A private, residential retreat with India's No.1 Human Potential Coach —
+            restore your body, mind, and spirit in the world's most serene settings.
+          </p>
 
-        <div class="hero-actions" data-reveal>
-          <a href="#book" class="btn btn-primary hero-cta" data-magnetic>
-            <span>Book Your Private Consultation</span>
-          </a>
-          <div class="hero-social">
-            <span class="live-dot"></span> 487 seekers have joined this season
+          <div class="hero-actions" data-reveal>
+            <a href="#book" class="btn btn-primary hero-cta" data-magnetic>
+              <span>Book Your Consultation</span>
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <div class="hero-social">
+              <span class="live-dot"></span> 487 seekers joined this season
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><i></i></div>
-    </section>
+        <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><i></i></div>
+      </section>
+
+      <!-- Floating booking bar -->
+      <div class="booking-bar" data-reveal>
+        <div class="bb-field">
+          <span>Retreat</span>
+          <strong>Know Thyself · 3-Day</strong>
+        </div>
+        <div class="bb-field">
+          <span>Setting</span>
+          <strong>Serene Natural Retreat</strong>
+        </div>
+        <div class="bb-field bb-guests">
+          <span>Seekers</span>
+          <strong>1 Guest</strong>
+        </div>
+        <a href="#book" class="bb-btn" data-magnetic>
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Check Availability
+        </a>
+      </div>
+    </div>
 
     <!-- ===================== FEATURE STRIP ===================== -->
     <section class="feature-strip">
