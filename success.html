@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Booking Confirmed — KOSH Retreat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="success-body">
+  <div class="ambient" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <main class="success-wrap">
+    <div class="success-card">
+      <div class="success-check" aria-hidden="true">
+        <svg viewBox="0 0 52 52"><circle class="sc-circle" cx="26" cy="26" r="24" /><path class="sc-tick" d="M14 27l8 8 16-18" /></svg>
+      </div>
+
+      <p class="success-eyebrow">Payment Successful</p>
+      <h1 class="success-title">Your Slot Is <em>Confirmed</em></h1>
+      <p class="success-text">
+        Thank you for booking the <strong>Know Thyself · 3-Day Retreat</strong>.
+        A confirmation with your retreat details will reach you shortly. We can't wait
+        to welcome you.
+      </p>
+
+      <div class="success-receipt" id="receipt" hidden>
+        <div class="rc-row"><span>Payment ID</span><strong id="rc-pid">—</strong></div>
+        <div class="rc-row"><span>Amount</span><strong id="rc-amt">₹6,000</strong></div>
+        <div class="rc-row"><span>Status</span><strong class="rc-paid">Paid · Test Mode</strong></div>
+      </div>
+
+      <div class="success-actions">
+        <a href="index.html" class="btn btn-primary" data-magnetic>
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          <span>Back to Home</span>
+        </a>
+        <a href="tel:7373738338" class="btn success-ghost" data-magnetic><span>Call the Team</span></a>
+      </div>
+
+      <p class="success-foot">Need help? Reach us at <a href="tel:7373738338">73737 38338</a></p>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var pid = params.get('pid');
+      var amt = params.get('amt');
+      if (pid) {
+        document.getElementById('rc-pid').textContent = pid;
+        if (amt) document.getElementById('rc-amt').textContent = '₹' + Number(amt).toLocaleString('en-IN');
+        document.getElementById('receipt').hidden = false;
+      }
+    })();
+  </script>
+</body>
+</html>

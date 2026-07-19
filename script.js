@@ -159,7 +159,9 @@
         prefill: { name: '', email: '', contact: '' },
         notes: { retreat: 'Know Thyself 3-Day', source: 'website' },
         handler: function (response) {
-          alert('Payment successful (test mode).\nPayment ID: ' + response.razorpay_payment_id);
+          var q = 'pid=' + encodeURIComponent(response.razorpay_payment_id) +
+                  '&amt=' + encodeURIComponent(BOOKING_AMOUNT_PAISE / 100);
+          window.location.href = 'success.html?' + q;
         },
         modal: {
           ondismiss: function () { slotBtn.disabled = false; }
