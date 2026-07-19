@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Know Thyself · Goa — a 6-day, 5-night soulful residential retreat with Anurag Rishi. 18–23 September 2026." />
+  <title>Know Thyself · Goa Retreat — KOSH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="cursor" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="ambient" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+  <header class="evd-nav">
+    <a href="index.html#events" class="evd-back"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back to Events</a>
+    <span class="evd-brand">KOSH</span>
+  </header>
+
+  <div class="evd-hero">
+    <div class="evd-banner" data-reveal>
+      <img src="event-goa.png" alt="Know Thyself — Goa Retreat poster" />
+    </div>
+  </div>
+
+  <div class="evd-body">
+    <div class="evd-main">
+      <p class="evd-eyebrow" data-reveal>A Journey Within · Goa</p>
+      <h1 class="evd-title" data-reveal>Know Thyself — <em>Goa</em></h1>
+      <p class="evd-sub" data-reveal>A 6-day, 5-night soulful residential retreat by the sea with Anurag Rishi, Inner Science Practitioner.</p>
+
+      <p class="evd-lead" data-reveal>
+        Step away from the noise and into stillness. Set against Goa's serene coastline, this
+        immersive retreat blends deep meditation, emotional release and guided inner work — a
+        space to heal, awaken and reconnect with your truest self.
+      </p>
+
+      <h2 class="evd-h3" data-reveal>What's Included</h2>
+      <ul class="evd-incl">
+        <li data-reveal>Expert guidance from Anurag Rishi</li>
+        <li data-reveal>Luxury beachside stay (5 nights)</li>
+        <li data-reveal>Nourishing sattvic meals</li>
+        <li data-reveal>All sessions &amp; practice materials</li>
+        <li data-reveal>Meditation &amp; healing circles</li>
+        <li data-reveal>Personal transformation roadmap</li>
+      </ul>
+
+      <h2 class="evd-h3" data-reveal>Daily Rhythm</h2>
+      <ul class="evd-sched">
+        <li data-reveal><b>Morning</b> Rhythmic Release Meditation &amp; breathwork</li>
+        <li data-reveal><b>Midday</b> Catharsis, Body Tapping &amp; healing circles</li>
+        <li data-reveal><b>Evening</b> Yog Nidra, 7 Chakra Balancing &amp; Liberation Kriya</li>
+      </ul>
+    </div>
+
+    <aside class="evd-card" data-reveal>
+      <ul class="evd-facts">
+        <li><span>Location</span><strong>Goa</strong></li>
+        <li><span>Dates</span><strong>18 – 23 Sept 2026</strong></li>
+        <li><span>Duration</span><strong>6 Days · 5 Nights</strong></li>
+        <li><span>Seats</span><strong>Limited</strong></li>
+      </ul>
+      <div class="evd-price">
+        <span class="now">₹1,19,000</span>
+        <span class="was">₹1,49,000</span>
+      </div>
+      <p class="evd-price-note">Per person · all-inclusive</p>
+      <button type="button" class="btn btn-primary evd-btn" id="reserveBtn" data-magnetic>
+        <span>Reserve Your Seat</span>
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <p class="evd-note">Secure checkout via Razorpay · Test mode</p>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <p>© <span id="year"></span> KOSH · Inner Residential Retreat — Know Thyself.</p>
+    <p class="footer-sub">Crafted with intention.</p>
+  </footer>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    (function () {
+      var y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
+
+      // ---- Razorpay reserve (test mode) ----
+      var RAZORPAY_KEY = 'rzp_test_TFN0UX8492WXoS';
+      var AMOUNT_PAISE = 11900000; // ₹1,19,000
+      var btn = document.getElementById('reserveBtn');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          if (typeof Razorpay === 'undefined') { alert('Payment could not load. Please check your connection and try again.'); return; }
+          var options = {
+            key: RAZORPAY_KEY,
+            amount: AMOUNT_PAISE,
+            currency: 'INR',
+            name: 'KOSH — Know Thyself · Goa',
+            description: 'Goa Retreat · 18–23 Sept 2026 — Seat Reservation',
+            theme: { color: '#4f9d3f' },
+            notes: { event: 'Goa', dates: '18-23 Sept 2026' },
+            handler: function (response) {
+              window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) +
+                '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent('Know Thyself · Goa');
+            },
+            modal: { ondismiss: function () { btn.disabled = false; } }
+          };
+          try {
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (r) { alert('Payment failed: ' + (r.error && r.error.description ? r.error.description : 'please try again.')); btn.disabled = false; });
+            btn.disabled = true; rzp.open();
+            setTimeout(function () { btn.disabled = false; }, 1500);
+          } catch (e) { btn.disabled = false; alert('Unable to start checkout. Please try again.'); }
+        });
+      }
+
+      // reveal
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .12 });
+      document.querySelectorAll('[data-reveal]').forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
