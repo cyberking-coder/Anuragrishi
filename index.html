@@ -38,43 +38,24 @@
       <a href="#coach" data-hover>Coach</a>
       <a href="#voices" data-hover>Voices</a>
     </nav>
-    <a href="#book" class="btn btn-ghost nav-cta" data-magnetic><span>Book a Call</span></a>
+    <a href="#book" class="btn btn-ghost nav-cta" data-magnetic><span>Book Your Slot</span></a>
   </header>
 
   <main id="top">
 
     <!-- ===================== HERO ===================== -->
     <div class="hero-wrap">
-      <section class="hero" id="hero">
+      <section class="hero hero--video-only" id="hero">
         <video class="hero-bg" autoplay muted loop playsinline preload="auto" aria-hidden="true">
           <source src="hero-bg%20(2).mp4" type="video/mp4" />
         </video>
-        <div class="hero-scrim" aria-hidden="true"></div>
+        <div class="hero-scrim hero-scrim--soft" aria-hidden="true"></div>
 
-        <div class="hero-content">
-          <div class="pill" data-reveal><span class="pill-ico">✦</span> Private · Personal · Transformative</div>
-
-          <h1 class="hero-title">
-            <span class="line"><span>Find Your</span></span>
-            <span class="line"><span>Inner Peace</span></span>
-            <span class="line"><span>Naturally</span></span>
-          </h1>
-
-          <p class="hero-sub" data-reveal>
-            A private, residential retreat with India's No.1 Human Potential Coach —
-            restore your body, mind, and spirit in the world's most serene settings.
-          </p>
-
-          <div class="hero-actions" data-reveal>
-            <a href="#book" class="btn btn-primary hero-cta" data-magnetic>
-              <span>Book Your Consultation</span>
-              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </a>
-            <div class="hero-social">
-              <span class="live-dot"></span> 487 seekers joined this season
-            </div>
-          </div>
-        </div>
+        <button class="audio-toggle" id="audioToggle" aria-label="Unmute video" aria-pressed="false">
+          <svg viewBox="0 0 24 24" class="ico-muted"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>
+          <svg viewBox="0 0 24 24" class="ico-sound"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a9 9 0 010 12"/></svg>
+          <span class="audio-label">Sound off</span>
+        </button>
 
         <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><i></i></div>
       </section>
@@ -362,11 +343,17 @@
         <p>A 3-day journey of spiritual, emotional and mental renewal. A space for silence,
           release, joy and awakening. An experience that stays with you long after the
           retreat ends.</p>
-        <a href="tel:7373738338" class="book-phone" data-magnetic>
-          <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.5 15.5 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg>
-          <span>73737 38338</span>
-        </a>
-        <p class="book-foot">Begin your journey toward inner peace, clarity and transformation.</p>
+        <div class="book-actions">
+          <a href="tel:7373738338" class="book-phone" data-magnetic>
+            <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.5 15.5 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg>
+            <span>73737 38338</span>
+          </a>
+          <button type="button" class="book-slot" id="bookSlotBtn" data-magnetic>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span>Book Your Slot</span>
+          </button>
+        </div>
+        <p class="book-foot">Begin your journey toward inner peace, clarity and transformation. Secure your seat with a booking payment.</p>
       </div>
     </section>
   </main>
@@ -376,6 +363,7 @@
     <p class="footer-sub">Crafted with intention.</p>
   </footer>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
