@@ -118,21 +118,38 @@ em { font-style: normal; color: var(--green-deep); }
 .hero-scrim--soft { background: linear-gradient(0deg, rgba(20,38,14,.34), transparent 40%), radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(20,38,14,.28)); }
 .hero--video-only { min-height: 90vh; }
 
-/* Audio toggle */
-.audio-toggle {
-  position: absolute; z-index: 4; right: 22px; bottom: 22px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px 12px 16px;
-  background: rgba(255,255,255,.9); backdrop-filter: blur(10px); border: none; border-radius: 100px;
-  color: var(--green-deep); font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 14px;
-  box-shadow: 0 14px 30px -14px rgba(0,0,0,.5); transition: transform .3s var(--ease), background .3s, color .3s;
+/* Audio control (mute button + volume slider) */
+.audio-control {
+  position: absolute; z-index: 4; right: 22px; bottom: 22px;
+  display: inline-flex; align-items: center; gap: 4px; padding: 8px 10px 8px 8px;
+  background: rgba(255,255,255,.9); backdrop-filter: blur(10px); border-radius: 100px;
+  box-shadow: 0 14px 30px -14px rgba(0,0,0,.5); transition: transform .3s var(--ease);
 }
-.audio-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.audio-control:hover { transform: translateY(-2px); }
+.audio-toggle {
+  cursor: pointer; display: inline-grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px;
+  background: var(--leaf); border: none; border-radius: 50%; color: var(--green-deep);
+  transition: background .3s, color .3s;
+}
+.audio-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .audio-toggle .ico-sound { display: none; }
-.audio-toggle.is-on { background: var(--green); color: #fff; }
-.audio-toggle.is-on .ico-muted { display: none; }
-.audio-toggle.is-on .ico-sound { display: block; }
-.audio-toggle:hover { transform: translateY(-2px); }
-@media (max-width: 620px) { .audio-toggle .audio-label { display: none; } .audio-toggle { padding: 12px; } }
+.audio-control.is-on .audio-toggle { background: var(--green); color: #fff; }
+.audio-control.is-on .ico-muted { display: none; }
+.audio-control.is-on .ico-sound { display: block; }
+
+.audio-slider {
+  -webkit-appearance: none; appearance: none; width: 96px; height: 5px; border-radius: 100px;
+  background: rgba(35,48,31,.18); outline: none; cursor: pointer; margin: 0 10px 0 6px;
+  transition: width .35s var(--ease), opacity .35s var(--ease), margin .35s var(--ease);
+  background-image: linear-gradient(var(--green), var(--green)); background-repeat: no-repeat;
+  background-size: 70% 100%;
+}
+.audio-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--green-deep); border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; }
+.audio-slider::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: var(--green-deep); border: 2px solid #fff; cursor: pointer; }
+.audio-slider::-moz-range-track { background: transparent; }
+/* collapse the slider until sound is on, so it reads as a tidy button first */
+.audio-control:not(.is-on):not(:hover) .audio-slider { width: 0; margin: 0; opacity: 0; pointer-events: none; }
+@media (hover: none) { .audio-control .audio-slider { width: 80px; opacity: 1; } }
 .hero-content { position: relative; z-index: 2; width: 100%; padding: clamp(34px, 6vw, 78px); }
 .pill {
   display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;

@@ -38,7 +38,7 @@
       <a href="#coach" data-hover>Coach</a>
       <a href="#voices" data-hover>Voices</a>
     </nav>
-    <a href="https://forms.gle/REPLACE_WITH_YOUR_FORM_ID" target="_blank" rel="noopener" class="btn btn-ghost nav-cta" data-magnetic><span>Join Waitlist</span></a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9XQRyOyVXUmY5ZAb2Cd5k3Jq0vViGxrZ30KuYzrhJ9zkqiw/viewform" target="_blank" rel="noopener" class="btn btn-ghost nav-cta" data-magnetic><span>Join Waitlist</span></a>
   </header>
 
   <main id="top">
@@ -51,11 +51,14 @@
         </video>
         <div class="hero-scrim hero-scrim--soft" aria-hidden="true"></div>
 
-        <button class="audio-toggle" id="audioToggle" aria-label="Unmute video" aria-pressed="false">
-          <svg viewBox="0 0 24 24" class="ico-muted"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>
-          <svg viewBox="0 0 24 24" class="ico-sound"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a9 9 0 010 12"/></svg>
-          <span class="audio-label">Sound off</span>
-        </button>
+        <div class="audio-control" id="audioControl">
+          <button class="audio-toggle" id="audioToggle" aria-label="Unmute video" aria-pressed="false">
+            <svg viewBox="0 0 24 24" class="ico-muted"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>
+            <svg viewBox="0 0 24 24" class="ico-sound"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a9 9 0 010 12"/></svg>
+          </button>
+          <input class="audio-slider" id="audioSlider" type="range" min="0" max="100" value="70"
+                 aria-label="Volume" />
+        </div>
 
         <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><i></i></div>
       </section>
@@ -64,7 +67,7 @@
       <div class="booking-bar" data-reveal>
         <div class="bb-field">
           <span>Retreat</span>
-          <strong>Know Thyself · 3-Day</strong>
+          <strong>Know Thyself · 6-Day</strong>
         </div>
         <div class="bb-field">
           <span>Setting</span>
@@ -80,26 +83,6 @@
         </a>
       </div>
     </div>
-
-    <!-- ===================== FEATURE STRIP ===================== -->
-    <section class="feature-strip">
-      <div class="feat" data-reveal>
-        <span class="feat-ico">✦</span>
-        <div><strong>100% Private</strong><em>One-on-one guidance</em></div>
-      </div>
-      <div class="feat" data-reveal>
-        <span class="feat-ico">◈</span>
-        <div><strong>Deep Transformation</strong><em>Beyond relaxation</em></div>
-      </div>
-      <div class="feat" data-reveal>
-        <span class="feat-ico">❖</span>
-        <div><strong>Sacred Destinations</strong><em>Serene natural settings</em></div>
-      </div>
-      <div class="feat" data-reveal>
-        <span class="feat-ico">✧</span>
-        <div><strong>World-Class Guidance</strong><em>Coaches &amp; healers</em></div>
-      </div>
-    </section>
 
     <!-- ===================== MEMORIES ===================== -->
     <section class="section memories" id="memories">
@@ -340,7 +323,7 @@
       <div class="book-card" data-reveal data-tilt>
         <div class="book-glow" aria-hidden="true"></div>
         <h2>The Unforgettable <em>Experience</em> Awaits</h2>
-        <p>A 3-day journey of spiritual, emotional and mental renewal. A space for silence,
+        <p>A 6-day journey of spiritual, emotional and mental renewal. A space for silence,
           release, joy and awakening. An experience that stays with you long after the
           retreat ends.</p>
         <div class="book-actions">

@@ -121,20 +121,36 @@
     });
   });
 
-  /* ---------- Hero audio toggle ---------- */
+  /* ---------- Hero audio: mute toggle + volume slider ---------- */
   const heroVideo = document.querySelector('.hero-bg');
+  const audioCtrl = document.getElementById('audioControl');
   const audioBtn = document.getElementById('audioToggle');
-  if (heroVideo && audioBtn) {
-    const label = audioBtn.querySelector('.audio-label');
-    audioBtn.addEventListener('click', () => {
-      const on = heroVideo.muted; // about to turn sound on if currently muted
+  const audioSlider = document.getElementById('audioSlider');
+  if (heroVideo && audioBtn && audioSlider) {
+    heroVideo.volume = audioSlider.value / 100;
+
+    function paintSlider() {
+      audioSlider.style.backgroundSize = audioSlider.value + '% 100%';
+    }
+    function setSoundOn(on) {
       heroVideo.muted = !on;
-      // ensure playback (some browsers pause on unmute of an autoplay video)
-      const pr = heroVideo.play(); if (pr && pr.catch) pr.catch(() => {});
-      audioBtn.classList.toggle('is-on', on);
+      audioCtrl.classList.toggle('is-on', on);
       audioBtn.setAttribute('aria-pressed', String(on));
       audioBtn.setAttribute('aria-label', on ? 'Mute video' : 'Unmute video');
-      if (label) label.textContent = on ? 'Sound on' : 'Sound off';
+      // autoplay videos can pause when unmuted — keep them running
+      const pr = heroVideo.play(); if (pr && pr.catch) pr.catch(() => {});
+    }
+    paintSlider();
+
+    audioBtn.addEventListener('click', () => setSoundOn(heroVideo.muted));
+
+    audioSlider.addEventListener('input', () => {
+      const vol = audioSlider.value / 100;
+      heroVideo.volume = vol;
+      paintSlider();
+      // dragging the slider up unmutes; to zero mutes
+      if (vol === 0) { if (!heroVideo.muted) setSoundOn(false); }
+      else if (heroVideo.muted) { setSoundOn(true); }
     });
   }
 
@@ -154,10 +170,10 @@
         amount: BOOKING_AMOUNT_PAISE,
         currency: 'INR',
         name: 'KOSH — Inner Residential Retreat',
-        description: 'Know Thyself · 3-Day Retreat — Booking Token',
+        description: 'Know Thyself · 6-Day Retreat — Booking Token',
         theme: { color: '#4f9d3f' },
         prefill: { name: '', email: '', contact: '' },
-        notes: { retreat: 'Know Thyself 3-Day', source: 'website' },
+        notes: { retreat: 'Know Thyself 6-Day', source: 'website' },
         handler: function (response) {
           var q = 'pid=' + encodeURIComponent(response.razorpay_payment_id) +
                   '&amt=' + encodeURIComponent(BOOKING_AMOUNT_PAISE / 100);
