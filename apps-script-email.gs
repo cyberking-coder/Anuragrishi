@@ -18,6 +18,38 @@
 var ADMIN_EMAIL = 'ar.happinessmovement@gmail.com'; // you get a copy of every booking
 var FROM_NAME   = 'KOSH · Know Thyself Retreat';
 
+// ---- Server-side payment verification (prevents amount/link tampering) ----
+// Get both from Razorpay Dashboard -> Settings -> API Keys.
+// The SECRET must live ONLY here in Apps Script — never on the website.
+var RAZORPAY_KEY_ID     = 'rzp_test_TFN0UX8492WXoS';
+var RAZORPAY_KEY_SECRET = 'PASTE_YOUR_RAZORPAY_KEY_SECRET';
+// Expected total (in paise) per event. The script trusts THIS, not the website.
+var EXPECTED_AMOUNT_PAISE = {
+  'Know Thyself · Goa': 15222000   // ₹1,52,220
+};
+
+// Fetches the real payment from Razorpay and checks it was actually captured
+// for the correct amount. Returns {ok, skipped?, pay?}.
+function verifyPayment(paymentId, eventName) {
+  if (!RAZORPAY_KEY_SECRET || RAZORPAY_KEY_SECRET.indexOf('PASTE') === 0) {
+    return { ok: true, skipped: true }; // not configured yet — don't block the flow
+  }
+  if (!paymentId) return { ok: false };
+  try {
+    var resp = UrlFetchApp.fetch('https://api.razorpay.com/v1/payments/' + encodeURIComponent(paymentId), {
+      method: 'get', muteHttpExceptions: true,
+      headers: { Authorization: 'Basic ' + Utilities.base64Encode(RAZORPAY_KEY_ID + ':' + RAZORPAY_KEY_SECRET) }
+    });
+    var pay = JSON.parse(resp.getContentText());
+    var captured = (pay.status === 'captured' || pay.status === 'authorized');
+    var expected = EXPECTED_AMOUNT_PAISE[eventName];
+    var amountOk = !expected || pay.amount === expected;
+    return { ok: captured && amountOk, pay: pay };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
 // Google Sheet logging:
 // Create a Google Sheet, copy the long ID from its URL
 //   https://docs.google.com/spreadsheets/d/THIS_LONG_ID/edit
@@ -29,9 +61,36 @@ function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
 
-    logToSheet(d); // record every attempt (booked + failed) with a timestamp
-
+    // Verify real payments server-side. If the amount/payment was tampered
+    // with on the website, this flips the status to 'unverified' so no
+    // confirmation is sent and you get alerted instead.
     if (d.status === 'booked') {
+      var check = verifyPayment(d.payment_id, d.event_name);
+      if (!check.skipped) {
+        if (!check.ok) {
+          d.status = 'unverified';
+          if (check.pay) d.reason = 'status=' + check.pay.status + ', amount=' + check.pay.amount;
+        } else if (check.pay) {
+          // trust Razorpay's real captured amount, not the browser's claim
+          d.amount_display = '₹' + Number(check.pay.amount / 100).toLocaleString('en-IN');
+        }
+      }
+    }
+
+    logToSheet(d); // record every attempt with a timestamp
+
+    if (d.status === 'unverified') {
+      // suspicious / tampered — alert you, do NOT confirm the guest
+      MailApp.sendEmail({
+        to: ADMIN_EMAIL, name: FROM_NAME,
+        subject: '⚠️ Unverified payment attempt — ' + d.event_name,
+        htmlBody: 'A booking could not be verified with Razorpay and was NOT confirmed:<br><br>' +
+          'Name: ' + esc(d.name) + '<br>Email: ' + esc(d.email) + '<br>Phone: ' + esc(d.phone) +
+          '<br>Event: ' + esc(d.event_name) + '<br>Payment ID: ' + esc(d.payment_id) +
+          '<br>Details: ' + esc(d.reason || '')
+      });
+
+    } else if (d.status === 'booked') {
       // ---- Guest: seat confirmed ----
       MailApp.sendEmail({
         to: d.email,
