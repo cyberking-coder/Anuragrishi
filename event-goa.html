@@ -108,20 +108,20 @@
          CONFIG
          --------------------------------------------------------------------
          Razorpay:  Dashboard → Settings → API Keys  (Key ID only)
-         Make.com:  Create a scenario starting with a "Custom webhook" module,
-                    copy its URL and paste it below. The site POSTs booking
-                    data there; your Make scenario sends the emails.
-                    Leave MAKE_WEBHOOK_URL as-is to skip (checkout still works).
+         n8n:       Add a "Webhook" node (HTTP method POST), copy its
+                    Production URL and paste it below. The site POSTs booking
+                    data there; your n8n workflow sends the emails.
+                    Leave WEBHOOK_URL as-is to skip (checkout still works).
       ===================================================================== */
-      var RAZORPAY_KEY     = 'rzp_test_TFN0UX8492WXoS';
-      var AMOUNT_PAISE     = 15222000; // ₹1,52,220 (₹1,29,000 + 18% GST)
-      var EVENT_NAME       = 'Know Thyself · Goa';
-      var EVENT_DATES      = '18 – 23 Sept 2026';
-      var MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/1taqhk1abrpcsq6b7tfumkaqratf9uvx';
+      var RAZORPAY_KEY = 'rzp_test_TFN0UX8492WXoS';
+      var AMOUNT_PAISE = 15222000; // ₹1,52,220 (₹1,29,000 + 18% GST)
+      var EVENT_NAME   = 'Know Thyself · Goa';
+      var EVENT_DATES  = '18 – 23 Sept 2026';
+      var WEBHOOK_URL  = 'REPLACE_WITH_YOUR_N8N_WEBHOOK_URL';
 
       function notifyMake(payload) {
-        if (!MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return Promise.resolve();
-        return fetch(MAKE_WEBHOOK_URL, {
+        if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return Promise.resolve();
+        return fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
