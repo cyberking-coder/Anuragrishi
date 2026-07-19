@@ -1,4 +1,4 @@
-// KOSH — Know Thyself retreat booking emails
+// Know Thyself — retreat booking emails
 // Google Apps Script Web App. Receives booking data from the website and
 // emails the guest (and you) on payment success / failure — free, via Gmail.
 //
@@ -16,7 +16,7 @@
 // edit the existing deployment -> Version: New version -> Deploy (URL stays the same).
 
 var ADMIN_EMAIL = 'ar.happinessmovement@gmail.com'; // you get a copy of every booking
-var FROM_NAME   = 'KOSH · Know Thyself Retreat';
+var FROM_NAME   = 'Know Thyself Retreat';
 
 // ---- Server-side payment verification (prevents amount/link tampering) ----
 // Get both from Razorpay Dashboard -> Settings -> API Keys.
