@@ -18,9 +18,18 @@
 var ADMIN_EMAIL = 'ar.happinessmovement@gmail.com'; // you get a copy of every booking
 var FROM_NAME   = 'KOSH · Know Thyself Retreat';
 
+// Google Sheet logging:
+// Create a Google Sheet, copy the long ID from its URL
+//   https://docs.google.com/spreadsheets/d/THIS_LONG_ID/edit
+// and paste it below. Leave '' to skip logging.
+var SHEET_ID   = '';
+var SHEET_NAME = 'Bookings'; // tab name; created automatically if missing
+
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
+
+    logToSheet(d); // record every attempt (booked + failed) with a timestamp
 
     if (d.status === 'booked') {
       // ---- Guest: seat confirmed ----
@@ -79,6 +88,26 @@ function doPost(e) {
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
       .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function logToSheet(d) {
+  if (!SHEET_ID) return;
+  try {
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Timestamp', 'Status', 'Name', 'Email', 'Phone',
+        'Event', 'Dates', 'Amount', 'Payment ID', 'Reason']);
+      sheet.getRange(1, 1, 1, 10).setFontWeight('bold');
+    }
+    sheet.appendRow([
+      new Date(), d.status || '', d.name || '', d.email || '', d.phone || '',
+      d.event_name || '', d.event_dates || '', d.amount_display || '',
+      d.payment_id || '', d.reason || ''
+    ]);
+  } catch (err) {
+    // logging failure must never block the email flow
   }
 }
 
