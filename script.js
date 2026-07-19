@@ -154,51 +154,6 @@
     });
   }
 
-  /* ---------- Razorpay booking (test mode) ---------- */
-  // Replace RAZORPAY_KEY with your own rzp_test_… / rzp_live_… key when ready.
-  const RAZORPAY_KEY = 'rzp_test_TFN0UX8492WXoS';
-  const BOOKING_AMOUNT_PAISE = 600000; // ₹6,000 booking token
-  const slotBtn = document.getElementById('bookSlotBtn');
-  if (slotBtn) {
-    slotBtn.addEventListener('click', () => {
-      if (typeof Razorpay === 'undefined') {
-        alert('Payment could not load. Please check your connection and try again.');
-        return;
-      }
-      const options = {
-        key: RAZORPAY_KEY,
-        amount: BOOKING_AMOUNT_PAISE,
-        currency: 'INR',
-        name: 'KOSH — Inner Residential Retreat',
-        description: 'Know Thyself · 6-Day Retreat — Booking Token',
-        theme: { color: '#4f9d3f' },
-        prefill: { name: '', email: '', contact: '' },
-        notes: { retreat: 'Know Thyself 6-Day', source: 'website' },
-        handler: function (response) {
-          var q = 'pid=' + encodeURIComponent(response.razorpay_payment_id) +
-                  '&amt=' + encodeURIComponent(BOOKING_AMOUNT_PAISE / 100);
-          window.location.href = 'success.html?' + q;
-        },
-        modal: {
-          ondismiss: function () { slotBtn.disabled = false; }
-        }
-      };
-      try {
-        const rzp = new Razorpay(options);
-        rzp.on('payment.failed', function (resp) {
-          alert('Payment failed: ' + (resp.error && resp.error.description ? resp.error.description : 'please try again.'));
-          slotBtn.disabled = false;
-        });
-        slotBtn.disabled = true;
-        rzp.open();
-        // re-enable shortly in case open() is blocked
-        setTimeout(() => { slotBtn.disabled = false; }, 1500);
-      } catch (e) {
-        slotBtn.disabled = false;
-        alert('Unable to start checkout. Please try again.');
-      }
-    });
-  }
 
   /* ---------- Quote slider ---------- */
   const quotes = document.querySelectorAll('.quote');

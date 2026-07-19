@@ -417,13 +417,22 @@ em { font-style: normal; color: var(--green-deep); }
 .evd-price-breakdown { list-style: none; display: flex; flex-direction: column; gap: 0; margin: 4px 0 14px; }
 .evd-price-breakdown li { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--muted); border-bottom: 1px dashed var(--line-soft); }
 .evd-price-breakdown strong { color: var(--ink-soft); font-weight: 600; }
-.evd-map { display: inline-flex; align-items: center; gap: 8px; color: var(--green-deep); font-weight: 600; font-size: 14.5px; text-decoration: none; }
-.evd-map svg { width: 18px; height: 18px; }
-.evd-map:hover { text-decoration: underline; }
+.evd-map {
+  display: inline-flex; align-items: center; gap: 10px; color: var(--green-deep); font-weight: 600;
+  font-size: 15.5px; text-decoration: none; background: var(--leaf); border: 1.5px solid var(--green);
+  padding: 12px 22px; border-radius: 100px; transition: background .3s, transform .3s, box-shadow .3s;
+}
+.evd-map svg { width: 20px; height: 20px; }
+.evd-map:hover { background: var(--green); color: #fff; transform: translateY(-2px); box-shadow: 0 14px 28px -14px rgba(79,157,63,.7); }
+.evd-wait-note { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 6px 0 20px; }
 .evd-price { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
 .evd-price .now { font-family: 'Poppins', sans-serif; font-size: clamp(30px, 5vw, 40px); font-weight: 800; color: var(--green-deep); }
 .evd-price .was { color: var(--faint); text-decoration: line-through; font-size: 17px; }
 .evd-price-note { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+.evd-form { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
+.evd-input { width: 100%; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--mist); font-family: 'Manrope', sans-serif; font-size: 14.5px; color: var(--ink); transition: border-color .25s, background .25s; }
+.evd-input::placeholder { color: var(--faint); }
+.evd-input:focus { outline: none; border-color: var(--green); background: #fff; }
 .evd-btn { width: 100%; justify-content: center; font-size: 16px; padding: 17px 28px; }
 .evd-btn.is-wait { background: #e6a817; color: #221a00; box-shadow: 0 14px 30px -12px rgba(230,168,23,.7); }
 .evd-btn.is-wait:hover { background: #cf9410; transform: translateY(-2px); }
