@@ -116,7 +116,7 @@
       var AMOUNT_PAISE = 15222000; // ₹1,52,220 (₹1,29,000 + 18% GST)
       var EVENT_NAME   = 'Know Thyself · Goa';
       var EVENT_DATES  = '18 – 23 Sept 2026';
-      var WEBHOOK_URL  = 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL';
+      var WEBHOOK_URL  = 'https://script.google.com/macros/s/AKfycbyc4Z7aaIGhYSvEmxYaSurxe34f2wHIK0OS8bGvICUvl3kMxiH7mDNJi4gONwPTcOEJFQ/exec';
 
       function notifyMake(payload) {
         if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return Promise.resolve();
