@@ -22,7 +22,7 @@ var FROM_NAME   = 'KOSH · Know Thyself Retreat';
 // Create a Google Sheet, copy the long ID from its URL
 //   https://docs.google.com/spreadsheets/d/THIS_LONG_ID/edit
 // and paste it below. Leave '' to skip logging.
-var SHEET_ID   = '';
+var SHEET_ID   = '1JE_S0qRktHKFXzwrBwtD0Tzvz6BtfaasQxf1YLORE2I';
 var SHEET_NAME = 'Bookings'; // tab name; created automatically if missing
 
 function doPost(e) {
