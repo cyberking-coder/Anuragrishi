@@ -100,44 +100,33 @@
   </footer>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
     (function () {
       var y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
 
       /* =====================================================================
-         CONFIG — fill these in from your accounts
+         CONFIG
          --------------------------------------------------------------------
          Razorpay:  Dashboard → Settings → API Keys  (Key ID only)
-         EmailJS:   https://emailjs.com  → Account → API Keys (Public Key),
-                    one Email Service, and two Email Templates.
-         Leave the EMAILJS_* values as-is to skip emails (checkout still works).
+         Make.com:  Create a scenario starting with a "Custom webhook" module,
+                    copy its URL and paste it below. The site POSTs booking
+                    data there; your Make scenario sends the emails.
+                    Leave MAKE_WEBHOOK_URL as-is to skip (checkout still works).
       ===================================================================== */
-      var RAZORPAY_KEY      = 'rzp_test_TFN0UX8492WXoS';
-      var AMOUNT_PAISE      = 15222000; // ₹1,52,220 (₹1,29,000 + 18% GST)
-      var EVENT_NAME        = 'Know Thyself · Goa';
-      var EVENT_DATES       = '18 – 23 Sept 2026';
+      var RAZORPAY_KEY     = 'rzp_test_TFN0UX8492WXoS';
+      var AMOUNT_PAISE     = 15222000; // ₹1,52,220 (₹1,29,000 + 18% GST)
+      var EVENT_NAME       = 'Know Thyself · Goa';
+      var EVENT_DATES      = '18 – 23 Sept 2026';
+      var MAKE_WEBHOOK_URL = 'https://hook.eu2.make.com/REPLACE_WITH_YOUR_WEBHOOK';
 
-      var EMAILJS_PUBLIC_KEY   = 'YOUR_EMAILJS_PUBLIC_KEY';
-      var EMAILJS_SERVICE_ID   = 'YOUR_EMAILJS_SERVICE_ID';
-      var EMAILJS_TPL_SUCCESS  = 'YOUR_SUCCESS_TEMPLATE_ID';
-      var EMAILJS_TPL_FAILED   = 'YOUR_FAILED_TEMPLATE_ID';
-
-      var emailReady = (typeof emailjs !== 'undefined') && EMAILJS_PUBLIC_KEY.indexOf('YOUR_') !== 0;
-      if (emailReady) { try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch (e) { emailReady = false; } }
-
-      function sendMail(tpl, guest, extra) {
-        if (!emailReady || !tpl || tpl.indexOf('YOUR_') === 0 || !guest.email) return Promise.resolve();
-        var params = {
-          to_name: guest.name || 'Guest',
-          to_email: guest.email,
-          phone: guest.phone || '',
-          event_name: EVENT_NAME,
-          event_dates: EVENT_DATES,
-          amount: '₹' + (AMOUNT_PAISE / 100).toLocaleString('en-IN')
-        };
-        for (var k in extra) params[k] = extra[k];
-        return emailjs.send(EMAILJS_SERVICE_ID, tpl, params).catch(function () {});
+      function notifyMake(payload) {
+        if (!MAKE_WEBHOOK_URL || MAKE_WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return Promise.resolve();
+        return fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true // still sends if the page navigates away on success
+        }).catch(function () {});
       }
 
       function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
@@ -149,6 +138,13 @@
           if (!guest.name || !guest.email || !guest.phone) { alert('Please enter your name, email and phone to reserve your seat.'); return; }
           if (typeof Razorpay === 'undefined') { alert('Payment could not load. Please check your connection and try again.'); return; }
 
+          var base = {
+            name: guest.name, email: guest.email, phone: guest.phone,
+            event_name: EVENT_NAME, event_dates: EVENT_DATES,
+            amount: AMOUNT_PAISE / 100,
+            amount_display: '₹' + (AMOUNT_PAISE / 100).toLocaleString('en-IN')
+          };
+
           var options = {
             key: RAZORPAY_KEY,
             amount: AMOUNT_PAISE,
@@ -159,12 +155,12 @@
             prefill: { name: guest.name, email: guest.email, contact: guest.phone },
             notes: { event: 'Goa', dates: EVENT_DATES },
             handler: function (response) {
-              // seat-booked confirmation email, then land on success page
-              sendMail(EMAILJS_TPL_SUCCESS, guest, { payment_id: response.razorpay_payment_id, status: 'Confirmed' })
-                .then(function () {
-                  window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) +
-                    '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
-                });
+              // success → tell Make to send the "seat booked" email, then land on success page
+              var p = Object.assign({ status: 'booked', payment_id: response.razorpay_payment_id }, base);
+              notifyMake(p).then(function () {
+                window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) +
+                  '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
+              });
             },
             modal: { ondismiss: function () { btn.disabled = false; } }
           };
@@ -172,8 +168,8 @@
             var rzp = new Razorpay(options);
             rzp.on('payment.failed', function (r) {
               var reason = (r.error && r.error.description) ? r.error.description : 'please try again.';
-              // payment-failed notification email
-              sendMail(EMAILJS_TPL_FAILED, guest, { status: 'Failed', reason: reason, payment_id: (r.error && r.error.metadata && r.error.metadata.payment_id) || '' });
+              // failure → tell Make to send the "payment failed" email
+              notifyMake(Object.assign({ status: 'failed', reason: reason, payment_id: (r.error && r.error.metadata && r.error.metadata.payment_id) || '' }, base));
               alert('Payment failed: ' + reason + '\nWe\'ve emailed you the details.');
               btn.disabled = false;
             });
