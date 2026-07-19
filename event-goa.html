@@ -41,12 +41,19 @@
       <h2 class="evd-h3" data-reveal>What's Included</h2>
       <ul class="evd-incl">
         <li data-reveal>Expert guidance from Anurag Rishi</li>
-        <li data-reveal>Luxury beachside stay (5 nights)</li>
-        <li data-reveal>Nourishing sattvic meals</li>
+        <li data-reveal>Comfortable double-sharing rooms</li>
+        <li data-reveal>All meals throughout the retreat</li>
         <li data-reveal>All sessions &amp; practice materials</li>
         <li data-reveal>Meditation &amp; healing circles</li>
         <li data-reveal>Personal transformation roadmap</li>
       </ul>
+
+      <p class="evd-lead" data-reveal style="margin-top:22px">
+        <a href="https://maps.app.goo.gl/HBdeurHvseSs3PMZ7" target="_blank" rel="noopener" class="evd-map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          View location on Google Maps
+        </a>
+      </p>
 
       <h2 class="evd-h3" data-reveal>Daily Rhythm</h2>
       <ul class="evd-sched">
@@ -60,14 +67,18 @@
       <ul class="evd-facts">
         <li><span>Location</span><strong>Goa</strong></li>
         <li><span>Dates</span><strong>18 – 23 Sept 2026</strong></li>
-        <li><span>Duration</span><strong>6 Days · 5 Nights</strong></li>
+        <li><span>Duration</span><strong>6 Days</strong></li>
+        <li><span>Stay</span><strong>Double-sharing</strong></li>
         <li><span>Seats</span><strong>Limited</strong></li>
       </ul>
+      <ul class="evd-price-breakdown">
+        <li><span>Program Fee</span><strong>₹1,29,000</strong></li>
+        <li><span>GST (18%)</span><strong>₹23,220</strong></li>
+      </ul>
       <div class="evd-price">
-        <span class="now">₹1,19,000</span>
-        <span class="was">₹1,49,000</span>
+        <span class="now">₹1,52,220</span>
       </div>
-      <p class="evd-price-note">Per person · all-inclusive</p>
+      <p class="evd-price-note">Total per person · all-inclusive</p>
       <button type="button" class="btn btn-primary evd-btn" id="reserveBtn" data-magnetic>
         <span>Reserve Your Seat</span>
         <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -88,7 +99,7 @@
 
       // ---- Razorpay reserve (test mode) ----
       var RAZORPAY_KEY = 'rzp_test_TFN0UX8492WXoS';
-      var AMOUNT_PAISE = 11900000; // ₹1,19,000
+      var AMOUNT_PAISE = 15222000; // ₹1,52,220 (₹1,29,000 + 18% GST)
       var btn = document.getElementById('reserveBtn');
       if (btn) {
         btn.addEventListener('click', function () {

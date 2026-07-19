@@ -414,6 +414,12 @@ em { font-style: normal; color: var(--green-deep); }
 .evd-facts li:last-child { border-bottom: none; }
 .evd-facts span { color: var(--muted); }
 .evd-facts strong { color: var(--ink); font-weight: 600; }
+.evd-price-breakdown { list-style: none; display: flex; flex-direction: column; gap: 0; margin: 4px 0 14px; }
+.evd-price-breakdown li { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--muted); border-bottom: 1px dashed var(--line-soft); }
+.evd-price-breakdown strong { color: var(--ink-soft); font-weight: 600; }
+.evd-map { display: inline-flex; align-items: center; gap: 8px; color: var(--green-deep); font-weight: 600; font-size: 14.5px; text-decoration: none; }
+.evd-map svg { width: 18px; height: 18px; }
+.evd-map:hover { text-decoration: underline; }
 .evd-price { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
 .evd-price .now { font-family: 'Poppins', sans-serif; font-size: clamp(30px, 5vw, 40px); font-weight: 800; color: var(--green-deep); }
 .evd-price .was { color: var(--faint); text-decoration: line-through; font-size: 17px; }
