@@ -140,8 +140,8 @@
 
   /* ---------- Razorpay booking (test mode) ---------- */
   // Replace RAZORPAY_KEY with your own rzp_test_… / rzp_live_… key when ready.
-  const RAZORPAY_KEY = 'rzp_test_1DP5mmOlF5G5ag';
-  const BOOKING_AMOUNT_PAISE = 250000; // ₹2,500 booking token
+  const RAZORPAY_KEY = 'rzp_test_TFN0UX8492WXoS';
+  const BOOKING_AMOUNT_PAISE = 600000; // ₹6,000 booking token
   const slotBtn = document.getElementById('bookSlotBtn');
   if (slotBtn) {
     slotBtn.addEventListener('click', () => {
