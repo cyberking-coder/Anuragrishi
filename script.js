@@ -89,20 +89,14 @@
     });
   }
 
-  /* ---------- Video players (hero + testimonial) ---------- */
-  document.querySelectorAll('.play-btn').forEach((btn) => {
-    const wrap = btn.closest('.hero-video, .vt-main');
-    if (!wrap) return;
-    const video = wrap.querySelector('video');
+  /* ---------- Testimonial play button ---------- */
+  document.querySelectorAll('.vt-main .play-btn').forEach((btn) => {
+    const wrap = btn.closest('.vt-main');
+    const video = wrap && wrap.querySelector('video');
+    if (!video) return;
     btn.addEventListener('click', () => {
-      const hasSrc = video && video.querySelector('source') && video.querySelector('source').getAttribute('src');
-      if (!hasSrc) {
-        // No source wired yet — simulate play state so UI stays interactive.
-        btn.classList.toggle('playing');
-        return;
-      }
-      if (video.paused) { video.play(); video.classList.add('playing'); btn.classList.add('playing'); }
-      else { video.pause(); video.classList.remove('playing'); btn.classList.remove('playing'); }
+      if (video.paused) { video.classList.add('playing'); btn.classList.add('playing'); const pr = video.play(); if (pr && pr.catch) pr.catch(() => {}); }
+      else { video.pause(); btn.classList.remove('playing'); }
     });
   });
 
@@ -110,16 +104,33 @@
   const thumbs = document.querySelectorAll('.vt-thumb');
   const vtName = document.getElementById('vt-name');
   const vtRole = document.getElementById('vt-role');
-  const vtBtn = document.querySelector('.vt-main .play-btn');
+  const vtMain = document.querySelector('.vt-main');
+  const vtVideo = vtMain ? vtMain.querySelector('video') : null;
+  const vtBtn = vtMain ? vtMain.querySelector('.play-btn') : null;
   thumbs.forEach((t) => {
     t.addEventListener('click', () => {
       thumbs.forEach((x) => x.classList.remove('is-active'));
       t.classList.add('is-active');
       if (vtName) vtName.textContent = t.dataset.name;
       if (vtRole) vtRole.textContent = t.dataset.role;
-      if (vtBtn) vtBtn.classList.remove('playing');
+      // swap the video source and start fresh
+      if (vtVideo && t.dataset.video) {
+        vtVideo.pause();
+        vtVideo.setAttribute('src', t.dataset.video);
+        vtVideo.classList.remove('playing');
+        vtVideo.load();
+        if (vtBtn) vtBtn.classList.remove('playing');
+        const pr = vtVideo.play();
+        if (pr && pr.then) { pr.then(() => { vtVideo.classList.add('playing'); if (vtBtn) vtBtn.classList.add('playing'); }).catch(() => {}); }
+      }
     });
   });
+
+  // keep the custom button state in sync with the testimonial video's own controls
+  if (vtVideo && vtBtn) {
+    vtVideo.addEventListener('play', () => { vtVideo.classList.add('playing'); vtBtn.classList.add('playing'); });
+    vtVideo.addEventListener('pause', () => { vtBtn.classList.remove('playing'); });
+  }
 
   /* ---------- Hero audio: mute toggle + volume slider ---------- */
   const heroVideo = document.querySelector('.hero-bg');
