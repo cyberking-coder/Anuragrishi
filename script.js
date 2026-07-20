@@ -132,57 +132,27 @@
     vtVideo.addEventListener('pause', () => { vtBtn.classList.remove('playing'); });
   }
 
-  /* ---------- Generate testimonial thumbnails from the videos ---------- */
-  // Real browsers can decode the clips, so we grab a frame in-page via canvas.
-  function grabFrame(src, seekTo) {
-    return new Promise((resolve) => {
-      const v = document.createElement('video');
-      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src;
-      let settled = false;
-      const finish = (url) => { if (!settled) { settled = true; v.removeAttribute('src'); v.load && v.load(); resolve(url); } };
-      const draw = () => {
-        try {
-          if (!v.videoWidth) return finish(null);
-          const c = document.createElement('canvas');
-          c.width = v.videoWidth; c.height = v.videoHeight;
-          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-          finish(c.toDataURL('image/jpeg', 0.72));
-        } catch (e) { finish(null); }
-      };
-      v.addEventListener('loadeddata', () => { try { v.currentTime = seekTo; } catch (e) { draw(); } });
-      v.addEventListener('seeked', draw, { once: true });
-      v.addEventListener('error', () => finish(null));
-      setTimeout(() => finish(null), 8000);
-    });
-  }
-
-  function buildThumbnails() {
-    let first = true;
-    thumbs.forEach((t) => {
-      const img = t.querySelector('.vt-thumb-img');
-      if (!img || !t.dataset.video) return;
-      grabFrame(t.dataset.video, 1.2).then((url) => {
-        if (!url) return;
-        img.src = url;
+  /* ---------- Testimonial thumbnails (free, no extra downloads) ----------
+     Capture a frame from a clip only once it has been played in the main
+     player — the data is already loaded, so this costs no extra bandwidth.
+     On first load the thumbnails show their lightweight caption cards. */
+  if (vtVideo) {
+    function captureActiveThumb() {
+      const active = document.querySelector('.vt-thumb.is-active');
+      if (!active || active.classList.contains('has-frame')) return;
+      const img = active.querySelector('.vt-thumb-img');
+      if (!img || !vtVideo.videoWidth) return;
+      try {
+        const c = document.createElement('canvas');
+        c.width = vtVideo.videoWidth; c.height = vtVideo.videoHeight;
+        c.getContext('2d').drawImage(vtVideo, 0, 0, c.width, c.height);
+        img.src = c.toDataURL('image/jpeg', 0.72);
         img.classList.add('loaded');
-        t.classList.add('has-frame');
-        // use the first clip's frame as the main player's poster
-        if (first && vtVideo && !vtVideo.getAttribute('poster')) { vtVideo.setAttribute('poster', url); }
-        first = false;
-      });
-    });
-  }
-
-  const vtSection = document.getElementById('vtestimonial');
-  if (vtSection && thumbs.length) {
-    if ('IntersectionObserver' in window) {
-      const tio = new IntersectionObserver((entries, obs) => {
-        entries.forEach((e) => { if (e.isIntersecting) { buildThumbnails(); obs.disconnect(); } });
-      }, { rootMargin: '200px' });
-      tio.observe(vtSection);
-    } else {
-      buildThumbnails();
+        active.classList.add('has-frame');
+      } catch (e) {}
     }
+    vtVideo.addEventListener('loadeddata', captureActiveThumb);
+    vtVideo.addEventListener('timeupdate', captureActiveThumb);
   }
 
   /* ---------- Hero audio: mute toggle + volume slider ---------- */
