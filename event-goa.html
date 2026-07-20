@@ -115,17 +115,24 @@
       var EVENT_DATES  = '18 – 23 Sept 2026';
       var WEBHOOK_URL  = 'https://script.google.com/macros/s/AKfycbyc4Z7aaIGhYSvEmxYaSurxe34f2wHIK0OS8bGvICUvl3kMxiH7mDNJi4gONwPTcOEJFQ/exec';
 
+      // Fire-and-forget notification. Does NOT block the redirect — sendBeacon
+      // (or keepalive fetch) delivers in the background even after we navigate.
       function notifyMake(payload) {
-        if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return Promise.resolve();
-        // text/plain + no-cors keeps this a "simple" request so the browser
-        // doesn't send a CORS preflight (Apps Script web apps can't answer one).
-        return fetch(WEBHOOK_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload),
-          keepalive: true // still sends if the page navigates away on success
-        }).catch(function () {});
+        if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return;
+        var body = JSON.stringify(payload);
+        try {
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon(WEBHOOK_URL, new Blob([body], { type: 'text/plain;charset=UTF-8' }));
+            return;
+          }
+        } catch (e) {}
+        try {
+          fetch(WEBHOOK_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: body, keepalive: true
+          }).catch(function () {});
+        } catch (e) {}
       }
 
       function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
@@ -154,12 +161,10 @@
             prefill: { name: guest.name, email: guest.email, contact: guest.phone },
             notes: { event: 'Goa', dates: EVENT_DATES },
             handler: function (response) {
-              // success → tell Make to send the "seat booked" email, then land on success page
-              var p = Object.assign({ status: 'booked', payment_id: response.razorpay_payment_id }, base);
-              notifyMake(p).then(function () {
-                window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) +
-                  '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
-              });
+              // fire the "seat booked" notification (background) and redirect immediately
+              notifyMake(Object.assign({ status: 'booked', payment_id: response.razorpay_payment_id }, base));
+              window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) +
+                '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
             },
             modal: { ondismiss: function () { btn.disabled = false; } }
           };
