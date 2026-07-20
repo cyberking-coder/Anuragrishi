@@ -132,27 +132,70 @@
     vtVideo.addEventListener('pause', () => { vtBtn.classList.remove('playing'); });
   }
 
-  /* ---------- Testimonial thumbnails (free, no extra downloads) ----------
-     Capture a frame from a clip only once it has been played in the main
-     player — the data is already loaded, so this costs no extra bandwidth.
-     On first load the thumbnails show their lightweight caption cards. */
-  if (vtVideo) {
-    function captureActiveThumb() {
-      const active = document.querySelector('.vt-thumb.is-active');
-      if (!active || active.classList.contains('has-frame')) return;
-      const img = active.querySelector('.vt-thumb-img');
-      if (!img || !vtVideo.videoWidth) return;
-      try {
-        const c = document.createElement('canvas');
-        c.width = vtVideo.videoWidth; c.height = vtVideo.videoHeight;
-        c.getContext('2d').drawImage(vtVideo, 0, 0, c.width, c.height);
-        img.src = c.toDataURL('image/jpeg', 0.72);
-        img.classList.add('loaded');
-        active.classList.add('has-frame');
-      } catch (e) {}
+  /* ---------- Testimonial thumbnails ----------
+     Grab each clip's FIRST frame (needs only the start of the file, not the
+     whole thing), one clip at a time, and only when the section is in view —
+     so it never blocks initial page load or saturates the connection. */
+  function grabFirstFrame(src) {
+    return new Promise((resolve) => {
+      const v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = src;
+      let done = false;
+      const finish = (url) => { if (!done) { done = true; try { v.removeAttribute('src'); v.load(); } catch (e) {} resolve(url); } };
+      v.addEventListener('loadeddata', () => {
+        try {
+          if (!v.videoWidth) return finish(null);
+          const c = document.createElement('canvas');
+          c.width = v.videoWidth; c.height = v.videoHeight;
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+          finish(c.toDataURL('image/jpeg', 0.7));
+        } catch (e) { finish(null); }
+      });
+      v.addEventListener('error', () => finish(null));
+      setTimeout(() => finish(null), 12000);
+    });
+  }
+
+  function applyFrame(thumb, url) {
+    if (!url) return;
+    const img = thumb.querySelector('.vt-thumb-img');
+    if (!img) return;
+    img.src = url; img.classList.add('loaded'); thumb.classList.add('has-frame');
+    if (vtVideo && !vtVideo.getAttribute('poster')) vtVideo.setAttribute('poster', url);
+  }
+
+  async function buildThumbnails() {
+    for (const t of thumbs) {                       // sequential, one at a time
+      if (t.classList.contains('has-frame') || !t.dataset.video) continue;
+      applyFrame(t, await grabFirstFrame(t.dataset.video));
     }
-    vtVideo.addEventListener('loadeddata', captureActiveThumb);
-    vtVideo.addEventListener('timeupdate', captureActiveThumb);
+  }
+
+  const vtSection = document.getElementById('vtestimonial');
+  if (vtSection && thumbs.length) {
+    if ('IntersectionObserver' in window) {
+      const tio = new IntersectionObserver((entries, obs) => {
+        entries.forEach((e) => { if (e.isIntersecting) { obs.disconnect(); buildThumbnails(); } });
+      }, { rootMargin: '150px' });
+      tio.observe(vtSection);
+    } else {
+      buildThumbnails();
+    }
+  }
+
+  // Also capture a frame for free from the main player once a clip is played.
+  if (vtVideo) {
+    vtVideo.addEventListener('loadeddata', () => {
+      const active = document.querySelector('.vt-thumb.is-active');
+      if (active && !active.classList.contains('has-frame') && vtVideo.videoWidth) {
+        try {
+          const c = document.createElement('canvas');
+          c.width = vtVideo.videoWidth; c.height = vtVideo.videoHeight;
+          c.getContext('2d').drawImage(vtVideo, 0, 0, c.width, c.height);
+          applyFrame(active, c.toDataURL('image/jpeg', 0.72));
+        } catch (e) {}
+      }
+    });
   }
 
   /* ---------- Hero audio: mute toggle + volume slider ---------- */
