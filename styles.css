@@ -119,6 +119,21 @@ em { font-style: normal; color: var(--green-deep); }
 .hero-scrim--soft { background: linear-gradient(0deg, rgba(20,38,14,.34), transparent 40%), radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(20,38,14,.28)); }
 .hero--video-only { min-height: 90vh; min-height: 90dvh; }
 
+/* Register Now button over the hero video */
+.hero-cta-wrap { position: absolute; left: 0; right: 0; top: 58%; z-index: 4; display: flex; justify-content: center; pointer-events: none; padding: 0 20px; }
+.hero-register {
+  position: relative; pointer-events: auto; display: inline-flex; align-items: center; gap: 11px; text-decoration: none;
+  background: var(--green); color: #fff; font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: clamp(16px, 2vw, 19px); letter-spacing: .01em; padding: 17px 42px; border-radius: 100px;
+  box-shadow: 0 18px 44px -14px rgba(0,0,0,.55); transition: transform .3s var(--ease), background .3s, box-shadow .3s;
+  will-change: transform;
+}
+.hero-register svg { width: 20px; height: 20px; }
+.hero-register:hover { background: var(--green-deep); box-shadow: 0 24px 52px -14px rgba(0,0,0,.65); }
+.hero-register::after { content: ''; position: absolute; inset: 0; border-radius: 100px; box-shadow: 0 0 0 0 rgba(98,184,78,.6); animation: reg-pulse 2.4s ease-out infinite; }
+@keyframes reg-pulse { 0% { box-shadow: 0 0 0 0 rgba(98,184,78,.5); } 70% { box-shadow: 0 0 0 16px rgba(98,184,78,0); } 100% { box-shadow: 0 0 0 0 rgba(98,184,78,0); } }
+@media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 74px; } .hero-register { padding: 15px 34px; } }
+
 /* Audio control (mute button + volume slider) */
 .audio-control {
   position: absolute; z-index: 4; right: 22px; bottom: 22px;
@@ -330,6 +345,7 @@ em { font-style: normal; color: var(--green-deep); }
 
 /* ---------- Not for you ---------- */
 .notfor { }
+.section-title em.neg { color: #d64541; }
 .neg-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 40px; }
 .neg-list li { position: relative; padding: 18px 20px 18px 54px; border-radius: 18px; background: var(--paper); border: 1px solid var(--line-soft); font-size: 15px; color: var(--ink-soft); transition: transform .3s var(--ease), box-shadow .3s; }
 .neg-list li strong { color: var(--terra); font-weight: 700; }
@@ -338,7 +354,8 @@ em { font-style: normal; color: var(--green-deep); }
 @media (min-width: 720px) { .neg-list { grid-template-columns: 1fr 1fr; } }
 
 /* ---------- Why join ---------- */
-.why { }
+.why .section-title { max-width: none; }
+.why .section-title em.nowrap { white-space: nowrap; }
 .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 44px; }
 .why-card { display: flex; gap: 15px; align-items: flex-start; padding: 22px; border-radius: 20px; background: var(--paper); border: 1px solid var(--line-soft); transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
 .why-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-sm); }
