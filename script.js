@@ -30,9 +30,14 @@
       entries.forEach((e, i) => {
         if (e.isIntersecting) {
           const sibs = [...e.target.parentElement.querySelectorAll('[data-reveal]')];
-          e.target.style.transitionDelay = Math.min(sibs.indexOf(e.target), 6) * 70 + 'ms';
-          e.target.classList.add('in');
-          io.unobserve(e.target);
+          const delay = Math.min(sibs.indexOf(e.target), 6) * 70;
+          const el = e.target;
+          el.style.transitionDelay = delay + 'ms';
+          el.classList.add('in');
+          io.unobserve(el);
+          // clear the stagger delay after the reveal so it can't make later
+          // interactions (e.g. the card tilt) feel laggy/inconsistent
+          setTimeout(() => { el.style.transitionDelay = ''; }, delay + 1100);
         }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });

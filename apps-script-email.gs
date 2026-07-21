@@ -25,7 +25,7 @@ var RAZORPAY_KEY_ID     = 'rzp_test_TFN0UX8492WXoS';
 var RAZORPAY_KEY_SECRET = 'PASTE_YOUR_RAZORPAY_KEY_SECRET';
 // Expected total (in paise) per event. The script trusts THIS, not the website.
 var EXPECTED_AMOUNT_PAISE = {
-  'Know Thyself · Goa': 15222000   // ₹1,52,220
+  'Know Thyself · Goa': 17582000   // ₹1,75,820
 };
 
 // Fetches the real payment from Razorpay and checks it was actually captured
