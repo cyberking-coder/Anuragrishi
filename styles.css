@@ -120,7 +120,7 @@ em { font-style: normal; color: var(--green-deep); }
 .hero--video-only { min-height: 90vh; min-height: 90dvh; }
 
 /* Register Now button over the hero video */
-.hero-cta-wrap { position: absolute; left: 0; right: 0; top: 58%; z-index: 4; display: flex; justify-content: center; pointer-events: none; padding: 0 20px; }
+.hero-cta-wrap { position: absolute; left: 0; right: 0; bottom: 92px; z-index: 4; display: flex; justify-content: center; pointer-events: none; padding: 0 20px; }
 .hero-register {
   position: relative; pointer-events: auto; display: inline-flex; align-items: center; gap: 11px; text-decoration: none;
   background: var(--green); color: #fff; font-family: 'Manrope', sans-serif; font-weight: 700;
