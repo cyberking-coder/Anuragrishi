@@ -214,14 +214,15 @@ em { font-style: normal; color: var(--green-deep); }
 
 /* ---------- Memories ---------- */
 .eyebrow::before, .section-title::before { content: ''; display: block; width: 46px; height: 3px; border-radius: 3px; background: var(--green); margin-bottom: 20px; }
-.memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.memory { aspect-ratio: 4/5; border-radius: var(--radius); background: var(--leaf); position: relative; overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .5s var(--ease); }
+.memory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.memory { aspect-ratio: 16/10; border-radius: var(--radius); background: var(--leaf); position: relative; overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .5s var(--ease); }
+.memory:nth-child(3) { grid-column: span 2; aspect-ratio: 24/9; }
 .memory:hover { transform: translateY(-6px); }
 .memory img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; transition: transform .7s var(--ease); }
 .memory:hover img { transform: scale(1.06); }
 .memory::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(255,255,255,.3), transparent); transform: translateX(-100%); transition: transform .8s var(--ease); z-index: 2; }
 .memory:hover::after { transform: translateX(100%); }
-@media (max-width: 680px) { .memory-grid { grid-template-columns: 1fr 1fr; } .memory:nth-child(3) { grid-column: span 2; aspect-ratio: 16/9; } }
+@media (max-width: 680px) { .memory { aspect-ratio: 4/3; } .memory:nth-child(3) { aspect-ratio: 16/10; } }
 
 /* ---------- Experience ---------- */
 .exp-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 46px; }
