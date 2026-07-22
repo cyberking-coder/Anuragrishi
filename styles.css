@@ -132,7 +132,18 @@ em { font-style: normal; color: var(--green-deep); }
 .hero-register:hover { background: var(--green-deep); box-shadow: 0 24px 52px -14px rgba(0,0,0,.65); }
 .hero-register::after { content: ''; position: absolute; inset: 0; border-radius: 100px; box-shadow: 0 0 0 0 rgba(98,184,78,.6); animation: reg-pulse 2.4s ease-out infinite; }
 @keyframes reg-pulse { 0% { box-shadow: 0 0 0 0 rgba(98,184,78,.5); } 70% { box-shadow: 0 0 0 16px rgba(98,184,78,0); } 100% { box-shadow: 0 0 0 0 rgba(98,184,78,0); } }
-@media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 8px; } .hero-register { padding: 9px 20px; font-size: 12.5px; gap: 7px; } .hero-register svg { width: 15px; height: 15px; } .audio-control { bottom: 10px; right: 10px; } }
+@media (max-width: 560px) {
+  /* button sits below the video, in the gap — not over the footage */
+  .hero-cta-wrap { position: static; inset: auto; padding: 0; margin: 14px 0 2px; pointer-events: auto; }
+  .hero-register { padding: 12px 30px; font-size: 14px; gap: 8px; box-shadow: 0 12px 28px -12px rgba(79,157,63,.6); }
+  .hero-register svg { width: 16px; height: 16px; }
+  .hero-register::after { display: none; }
+  /* smaller volume control — round mute button only */
+  .audio-control { bottom: 10px; right: 10px; padding: 5px; }
+  .audio-toggle { width: 32px; height: 32px; flex-basis: 32px; }
+  .audio-toggle svg { width: 16px; height: 16px; }
+  .audio-control .audio-slider { display: none; }
+}
 
 /* Floating Register button — appears on scroll, stays to the end */
 .float-register {
