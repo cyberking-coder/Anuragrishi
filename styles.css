@@ -132,7 +132,7 @@ em { font-style: normal; color: var(--green-deep); }
 .hero-register:hover { background: var(--green-deep); box-shadow: 0 24px 52px -14px rgba(0,0,0,.65); }
 .hero-register::after { content: ''; position: absolute; inset: 0; border-radius: 100px; box-shadow: 0 0 0 0 rgba(98,184,78,.6); animation: reg-pulse 2.4s ease-out infinite; }
 @keyframes reg-pulse { 0% { box-shadow: 0 0 0 0 rgba(98,184,78,.5); } 70% { box-shadow: 0 0 0 16px rgba(98,184,78,0); } 100% { box-shadow: 0 0 0 0 rgba(98,184,78,0); } }
-@media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 74px; } .hero-register { padding: 15px 34px; } }
+@media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 14px; } .hero-register { padding: 13px 28px; font-size: 14px; } .audio-control { bottom: 12px; right: 12px; } }
 
 /* Floating Register button — appears on scroll, stays to the end */
 .float-register {
@@ -148,10 +148,10 @@ em { font-style: normal; color: var(--green-deep); }
 .float-register svg { width: 18px; height: 18px; }
 @media (max-width: 560px) { .float-register { right: 14px; bottom: 14px; padding: 12px 22px; font-size: 14px; } }
 
-/* Don't crop the hero video on phones */
+/* On phones, let the video define the hero height (no green bars, no crop) */
 @media (max-width: 640px) {
-  .hero-bg { object-fit: contain; }
-  .hero--video-only { min-height: 66vh; min-height: 66dvh; }
+  .hero, .hero--video-only { display: block; min-height: 0; }
+  .hero-bg { position: relative; width: 100%; height: auto; display: block; }
 }
 
 /* Audio control (mute button + volume slider) */
@@ -416,6 +416,12 @@ em { font-style: normal; color: var(--green-deep); }
 .stat .num { display: block; font-family: 'Poppins', sans-serif; font-size: clamp(30px, 4.2vw, 46px); font-weight: 800; color: var(--green); line-height: 1; }
 .stat label { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; letter-spacing: .04em; }
 @media (max-width: 760px) { .coach-card { grid-template-columns: 1fr; } .coach-photo { width: 100%; max-width: 300px; margin: 0 auto; } }
+@media (max-width: 560px) {
+  .stats { gap: 8px; }
+  .stat { padding: 18px 6px; border-radius: 14px; }
+  .stat .num { font-size: 24px; }
+  .stat label { font-size: 10px; letter-spacing: 0; margin-top: 6px; }
+}
 
 /* ---------- Book / CTA ---------- */
 .book-card { position: relative; text-align: center; padding: clamp(46px, 7vw, 88px) clamp(24px, 5vw, 70px); border-radius: var(--radius-lg); overflow: hidden; background: linear-gradient(150deg, var(--green), var(--green-deep) 60%, var(--green-dark)); box-shadow: var(--shadow); }
