@@ -12,6 +12,7 @@
   /* ---------- Nav scroll state + progress ---------- */
   const nav = document.getElementById('nav');
   const progress = document.querySelector('.scroll-progress span');
+  const floatReg = document.getElementById('floatRegister');
   function onScroll() {
     const y = window.scrollY;
     if (nav) nav.classList.toggle('scrolled', y > 40);
@@ -19,6 +20,8 @@
       const h = document.documentElement.scrollHeight - window.innerHeight;
       progress.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
     }
+    // floating Register button: show once past the hero, stay to the end
+    if (floatReg) floatReg.classList.toggle('show', y > window.innerHeight * 0.7);
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();

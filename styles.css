@@ -134,6 +134,26 @@ em { font-style: normal; color: var(--green-deep); }
 @keyframes reg-pulse { 0% { box-shadow: 0 0 0 0 rgba(98,184,78,.5); } 70% { box-shadow: 0 0 0 16px rgba(98,184,78,0); } 100% { box-shadow: 0 0 0 0 rgba(98,184,78,0); } }
 @media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 74px; } .hero-register { padding: 15px 34px; } }
 
+/* Floating Register button — appears on scroll, stays to the end */
+.float-register {
+  position: fixed; right: 20px; bottom: 20px; z-index: 700;
+  display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
+  background: var(--green); color: #fff; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 15px;
+  padding: 14px 26px; border-radius: 100px; box-shadow: 0 16px 38px -12px rgba(0,0,0,.5);
+  transform: translateY(130px); opacity: 0; pointer-events: none;
+  transition: transform .45s var(--ease), opacity .45s var(--ease), background .3s;
+}
+.float-register.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.float-register:hover { background: var(--green-deep); }
+.float-register svg { width: 18px; height: 18px; }
+@media (max-width: 560px) { .float-register { right: 14px; bottom: 14px; padding: 12px 22px; font-size: 14px; } }
+
+/* Don't crop the hero video on phones */
+@media (max-width: 640px) {
+  .hero-bg { object-fit: contain; }
+  .hero--video-only { min-height: 66vh; min-height: 66dvh; }
+}
+
 /* Audio control (mute button + volume slider) */
 .audio-control {
   position: absolute; z-index: 4; right: 22px; bottom: 22px;
