@@ -132,7 +132,7 @@ em { font-style: normal; color: var(--green-deep); }
 .hero-register:hover { background: var(--green-deep); box-shadow: 0 24px 52px -14px rgba(0,0,0,.65); }
 .hero-register::after { content: ''; position: absolute; inset: 0; border-radius: 100px; box-shadow: 0 0 0 0 rgba(98,184,78,.6); animation: reg-pulse 2.4s ease-out infinite; }
 @keyframes reg-pulse { 0% { box-shadow: 0 0 0 0 rgba(98,184,78,.5); } 70% { box-shadow: 0 0 0 16px rgba(98,184,78,0); } 100% { box-shadow: 0 0 0 0 rgba(98,184,78,0); } }
-@media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 14px; } .hero-register { padding: 13px 28px; font-size: 14px; } .audio-control { bottom: 12px; right: 12px; } }
+@media (max-width: 560px) { .hero-cta-wrap { top: auto; bottom: 8px; } .hero-register { padding: 9px 20px; font-size: 12.5px; gap: 7px; } .hero-register svg { width: 15px; height: 15px; } .audio-control { bottom: 10px; right: 10px; } }
 
 /* Floating Register button — appears on scroll, stays to the end */
 .float-register {
