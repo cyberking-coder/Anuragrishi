@@ -97,58 +97,33 @@
     });
   }
 
-  /* ---------- Testimonial play button ---------- */
-  document.querySelectorAll('.vt-main .play-btn').forEach((btn) => {
-    const wrap = btn.closest('.vt-main');
-    const video = wrap && wrap.querySelector('video');
-    if (!video) return;
-    btn.addEventListener('click', () => {
-      if (video.paused) { video.classList.add('playing'); btn.classList.add('playing'); const pr = video.play(); if (pr && pr.catch) pr.catch(() => {}); }
-      else { video.pause(); btn.classList.remove('playing'); }
+  /* ---------- Stories of Transformation (click card → modal video) ---------- */
+  const storyModal = document.getElementById('storyModal');
+  const storyVideo = document.getElementById('storyVideo');
+  const storyModalName = document.getElementById('storyModalName');
+  if (storyModal && storyVideo) {
+    function openStory(src, name) {
+      storyVideo.setAttribute('src', src);
+      if (storyModalName) storyModalName.textContent = name || '';
+      storyModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      const pr = storyVideo.play(); if (pr && pr.catch) pr.catch(() => {});
+    }
+    function closeStory() {
+      storyVideo.pause();
+      storyVideo.removeAttribute('src'); storyVideo.load();
+      storyModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+    document.querySelectorAll('.story-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const name = (card.dataset.name || '').replace('&amp;', '&');
+        openStory(card.dataset.video, name);
+      });
     });
-  });
-
-  /* ---------- Video testimonial rail ---------- */
-  const thumbs = document.querySelectorAll('.vt-thumb');
-  const vtName = document.getElementById('vt-name');
-  const vtRole = document.getElementById('vt-role');
-  const vtMain = document.querySelector('.vt-main');
-  const vtVideo = vtMain ? vtMain.querySelector('video') : null;
-  const vtBtn = vtMain ? vtMain.querySelector('.play-btn') : null;
-  thumbs.forEach((t) => {
-    t.addEventListener('click', () => {
-      thumbs.forEach((x) => x.classList.remove('is-active'));
-      t.classList.add('is-active');
-      if (vtName) vtName.textContent = t.dataset.name;
-      if (vtRole) vtRole.textContent = t.dataset.role;
-      // swap the video source and start fresh
-      if (vtVideo && t.dataset.video) {
-        vtVideo.pause();
-        vtVideo.setAttribute('src', t.dataset.video);
-        vtVideo.classList.remove('playing');
-        vtVideo.load();
-        if (vtBtn) vtBtn.classList.remove('playing');
-        const pr = vtVideo.play();
-        if (pr && pr.then) { pr.then(() => { vtVideo.classList.add('playing'); if (vtBtn) vtBtn.classList.add('playing'); }).catch(() => {}); }
-      }
-    });
-  });
-
-  // keep the custom button state in sync with the testimonial video's own controls
-  if (vtVideo && vtBtn) {
-    vtVideo.addEventListener('play', () => { vtVideo.classList.add('playing'); vtBtn.classList.add('playing'); });
-    vtVideo.addEventListener('pause', () => { vtBtn.classList.remove('playing'); });
+    storyModal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', closeStory));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !storyModal.hidden) closeStory(); });
   }
-
-  // Testimonial thumbnails are static images (thumb-1..4.jpg) — nothing to
-  // generate at runtime, so no video downloads happen until a clip is played.
-  // Swap the main player's poster to match the selected thumbnail.
-  thumbs.forEach((t) => {
-    t.addEventListener('click', () => {
-      const img = t.querySelector('.vt-thumb-img');
-      if (vtVideo && img && img.getAttribute('src')) vtVideo.setAttribute('poster', img.getAttribute('src'));
-    });
-  });
 
   /* ---------- Hero audio: mute toggle + volume slider ---------- */
   const heroVideo = document.querySelector('.hero-bg');
