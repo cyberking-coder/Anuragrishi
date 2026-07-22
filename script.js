@@ -125,6 +125,27 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !storyModal.hidden) closeStory(); });
   }
 
+  /* ---------- Stories slider (prev / next) ---------- */
+  const track = document.getElementById('storiesTrack');
+  const prevBtn = document.getElementById('storyPrev');
+  const nextBtn = document.getElementById('storyNext');
+  if (track && prevBtn && nextBtn) {
+    function step() {
+      const card = track.querySelector('.story-card');
+      const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '24') || 24;
+      return card ? card.getBoundingClientRect().width + gap : track.clientWidth;
+    }
+    function updateNav() {
+      prevBtn.disabled = track.scrollLeft <= 4;
+      nextBtn.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+    }
+    prevBtn.addEventListener('click', () => { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    nextBtn.addEventListener('click', () => { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+    track.addEventListener('scroll', updateNav, { passive: true });
+    window.addEventListener('resize', updateNav);
+    updateNav();
+  }
+
   /* ---------- Hero audio: mute toggle + volume slider ---------- */
   const heroVideo = document.querySelector('.hero-bg');
   const audioCtrl = document.getElementById('audioControl');
