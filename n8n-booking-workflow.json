@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// The site posts text/plain so the body may arrive as a raw string.\nconst EXPECTED_AMOUNT_PAISE = {\n  'Know Thyself · Goa': 17582000\n};\n\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\nif (d && typeof d.data === 'string') { try { d = JSON.parse(d.data); } catch (e) {} }\n\nreturn [{\n  json: {\n    status: d.status || '',\n    name: d.name || '',\n    email: d.email || '',\n    phone: d.phone || '',\n    event_name: d.event_name || '',\n    event_dates: d.event_dates || '',\n    amount: d.amount || '',\n    amount_display: d.amount_display || '',\n    payment_id: d.payment_id || '',\n    reason: d.reason || '',\n    expected_amount_paise: EXPECTED_AMOUNT_PAISE[d.event_name] || null\n  }\n}];"
+        "jsCode": "// The site posts text/plain so the body may arrive as a raw string.\nconst EXPECTED_AMOUNT_PAISE = {\n  'Know Thyself · Mussoorie': 17582000\n};\n\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\nif (d && typeof d.data === 'string') { try { d = JSON.parse(d.data); } catch (e) {} }\n\nreturn [{\n  json: {\n    status: d.status || '',\n    name: d.name || '',\n    email: d.email || '',\n    phone: d.phone || '',\n    event_name: d.event_name || '',\n    event_dates: d.event_dates || '',\n    amount: d.amount || '',\n    amount_display: d.amount_display || '',\n    payment_id: d.payment_id || '',\n    reason: d.reason || '',\n    expected_amount_paise: EXPECTED_AMOUNT_PAISE[d.event_name] || null\n  }\n}];"
       },
       "id": "parse",
       "name": "Parse Booking",
