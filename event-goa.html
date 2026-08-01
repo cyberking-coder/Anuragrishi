@@ -51,19 +51,15 @@
       </div>
 
       <aside class="evd2-aside">
-        <div class="evd2-price"><span class="now">₹1,75,820</span></div>
-        <p class="evd2-price-note">Program ₹1,49,000 + 18% GST ₹26,820 · per person</p>
-        <div class="evd-form">
-          <input type="text"  id="guestName"  class="evd-input" placeholder="Full name" autocomplete="name" />
-          <input type="email" id="guestEmail" class="evd-input" placeholder="Email address" autocomplete="email" />
-          <input type="tel"   id="guestPhone" class="evd-input" placeholder="Phone number" autocomplete="tel" />
-        </div>
-        <button type="button" class="btn btn-primary evd-btn" id="reserveBtn" data-magnetic>
-          <span>Reserve Your Seat</span>
-          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </button>
-        <p class="evd-note">Secure checkout via Razorpay · Test mode · You'll get a confirmation email</p>
-        <p class="evd2-elig">Limited seats · double-sharing rooms with all meals included. Book early to secure your place.</p>
+        <div class="evd2-price"><span class="now">Waitlist Only</span></div>
+        <p class="evd2-price-note">Seats are released through our waitlist</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9XQRyOyVXUmY5ZAb2Cd5k3Jq0vViGxrZ30KuYzrhJ9zkqiw/viewform"
+           target="_blank" rel="noopener" class="btn evd-btn is-wait" data-magnetic>
+          <span>Join the Waitlist</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <p class="evd-note">We'll reach out with availability and details</p>
+        <p class="evd2-elig">Limited seats · double-sharing rooms with all meals included. Join the waitlist to be first in line.</p>
       </aside>
     </div>
 
@@ -92,7 +88,7 @@
       </div>
 
       <div class="evd2-sec">
-        <h2>Included in Retreat Fee — ₹1,75,820</h2>
+        <h2>What the Retreat Includes</h2>
         <ul class="evd2-list check">
           <li>Five nights' stay in comfortable double-sharing rooms</li>
           <li>All meals throughout the retreat (breakfast, lunch, dinner)</li>
@@ -128,7 +124,7 @@
           <li>All meals served on-site, buffet style</li>
         </ul>
         <p class="muted">Prefer a private room? Limited single-occupancy upgrades may be available on
-          request for an additional charge — mention it when you register.</p>
+          request for an additional charge — mention it when you join the waitlist.</p>
       </div>
     </div>
 
@@ -137,9 +133,9 @@
       <div class="evd2-sec">
         <h2>Policies &amp; Disclaimers</h2>
         <ul class="evd2-list">
-          <li>The retreat fee of ₹1,75,820 is inclusive of 18% GST and covers stay, meals and all sessions.</li>
-          <li>Travel to and from the venue is not included.</li>
-          <li>Seats are confirmed on receipt of full payment; places are limited.</li>
+          <li>Seats for this retreat are released in order of the waitlist.</li>
+          <li>The retreat fee covers stay, meals and all sessions; travel is not included.</li>
+          <li>Places are confirmed on receipt of payment once a seat is offered.</li>
           <li>This is an inner-work retreat and not a substitute for medical or psychological treatment.</li>
           <li>For cancellations, transfers or special requests, please contact our team.</li>
         </ul>
@@ -153,7 +149,6 @@
     <p class="footer-sub">Crafted with intention.</p>
   </footer>
 
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     (function () {
       var y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
@@ -198,51 +193,6 @@
         tick(); setInterval(tick, 1000);
       }
 
-      /* ---- Razorpay reserve ---- */
-      var RAZORPAY_KEY = 'rzp_test_TFN0UX8492WXoS';
-      var AMOUNT_PAISE = 17582000; // ₹1,75,820 (₹1,49,000 + 18% GST)
-      var EVENT_NAME   = 'Know Thyself · Goa';
-      var EVENT_DATES  = '18 – 23 Sept 2026';
-      var WEBHOOK_URL  = 'https://script.google.com/macros/s/AKfycbyc4Z7aaIGhYSvEmxYaSurxe34f2wHIK0OS8bGvICUvl3kMxiH7mDNJi4gONwPTcOEJFQ/exec';
-
-      function notifyMake(payload) {
-        if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return;
-        var body = JSON.stringify(payload);
-        try { if (navigator.sendBeacon) { navigator.sendBeacon(WEBHOOK_URL, new Blob([body], { type: 'text/plain;charset=UTF-8' })); return; } } catch (e) {}
-        try { fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, keepalive: true }).catch(function () {}); } catch (e) {}
-      }
-      function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-
-      var btn = document.getElementById('reserveBtn');
-      if (btn) {
-        btn.addEventListener('click', function () {
-          var guest = { name: val('guestName'), email: val('guestEmail'), phone: val('guestPhone') };
-          if (!guest.name || !guest.email || !guest.phone) { alert('Please enter your name, email and phone to reserve your seat.'); return; }
-          if (typeof Razorpay === 'undefined') { alert('Payment could not load. Please check your connection and try again.'); return; }
-          var base = { name: guest.name, email: guest.email, phone: guest.phone, event_name: EVENT_NAME, event_dates: EVENT_DATES, amount: AMOUNT_PAISE / 100, amount_display: '₹' + (AMOUNT_PAISE / 100).toLocaleString('en-IN') };
-          var options = {
-            key: RAZORPAY_KEY, amount: AMOUNT_PAISE, currency: 'INR',
-            name: 'Know Thyself · Goa', description: 'Goa Retreat · ' + EVENT_DATES + ' — Seat Reservation',
-            theme: { color: '#4f9d3f' }, prefill: { name: guest.name, email: guest.email, contact: guest.phone }, notes: { event: 'Goa', dates: EVENT_DATES },
-            handler: function (response) {
-              notifyMake(Object.assign({ status: 'booked', payment_id: response.razorpay_payment_id }, base));
-              window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) + '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
-            },
-            modal: { ondismiss: function () { btn.disabled = false; } }
-          };
-          try {
-            var rzp = new Razorpay(options);
-            rzp.on('payment.failed', function (r) {
-              var reason = (r.error && r.error.description) ? r.error.description : 'please try again.';
-              notifyMake(Object.assign({ status: 'failed', reason: reason, payment_id: (r.error && r.error.metadata && r.error.metadata.payment_id) || '' }, base));
-              alert('Payment failed: ' + reason + '\nWe\'ve emailed you the details.');
-              btn.disabled = false;
-            });
-            btn.disabled = true; rzp.open();
-            setTimeout(function () { btn.disabled = false; }, 1500);
-          } catch (e) { btn.disabled = false; alert('Unable to start checkout. Please try again.'); }
-        });
-      }
     })();
   </script>
   <script src="script.js"></script>
