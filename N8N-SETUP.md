@@ -16,7 +16,7 @@ n8n → **Workflows → Import from File** → pick `n8n-booking-workflow.json`.
 
 | Credential (n8n type) | Fields |
 |---|---|
-| **Basic Auth** — name it `Razorpay Live API Keys` | User = `rzp_live_GtCPbMMCPYFygU`, Password = your **live Key Secret** |
+| **Basic Auth** — name it `Razorpay Live API Keys` | User = `rzp_live_RhCqpmLp2p4CaH`, Password = your **live Key Secret** |
 | **Google Sheets OAuth2** — `Google Sheets — Know Thyself` | sheet `1JE_S0qRktHKFXzwrBwtD0Tzvz6BtfaasQxf1YLORE2I`, tab `Bookings` |
 
 Then open each node showing a red credential warning and re-select the credential you
