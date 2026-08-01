@@ -195,11 +195,15 @@
       /* ---- Razorpay reserve ---- */
       // Key ID is public by design; the Key Secret lives only in the n8n credential.
       var RAZORPAY_KEY = 'rzp_live_GtCPbMMCPYFygU';
-      var AMOUNT_PAISE = 17582000; // ₹1,75,820 (₹1,49,000 + 18% GST)
+      // ⚠️ LIVE TEST MODE — charging ₹1 so the live flow can be verified end to end.
+      // REVERT to 17582000 (₹1,75,820 = ₹1,49,000 + 18% GST) before taking real bookings,
+      // and change EXPECTED_AMOUNT_PAISE in the n8n Parse Booking node to match.
+      var AMOUNT_PAISE = 100; // ₹1 — TEST
+      // var AMOUNT_PAISE = 17582000; // ₹1,75,820 — REAL PRICE
       var EVENT_NAME   = 'Know Thyself · Mussoorie';
       var EVENT_DATES  = '14 – 19 Nov 2026';
-      // n8n production webhook: https://<your-n8n>/webhook/knowthyself-booking
-      var WEBHOOK_URL  = 'REPLACE_WITH_N8N_WEBHOOK_URL';
+      // n8n production webhook (Booking Webhook node)
+      var WEBHOOK_URL  = 'https://n8n.srv965659.hstgr.cloud/webhook/d1cda85e-1973-4fba-8095-3e1712837cff';
 
       function notifyBookingHook(payload) {
         if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return;
