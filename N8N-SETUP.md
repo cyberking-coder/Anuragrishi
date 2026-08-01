@@ -2,8 +2,8 @@
 
 `n8n-booking-workflow.json` handles bookings for the **Mussoorie** retreat (the only
 event currently selling tickets — Goa is waitlist-only). It verifies the payment with
-Razorpay server-side, sends WhatsApp messages through **WATI** to the guest and to you,
-and logs every attempt to the Google Sheet.
+Razorpay server-side, sends the guest a WhatsApp message through **WATI**,
+and appends every attempt to the Google Sheet.
 
 This replaces the old Google Apps Script automation, which has been deleted from the
 repo. Once n8n is live, also **delete the Apps Script deployment** at
@@ -32,30 +32,26 @@ value; if WATI shows it already starting with `Bearer `, don't add a second `Bea
 Open the **Parse Booking** node and edit the config block at the top:
 
 ```js
-const WATI_BASE     = 'https://live-mt-server.wati.io/YOUR_TENANT_ID';
-const ADMIN_WHATSAPP = '917373738338';
+const WATI_BASE = 'https://live-mt-server.wati.io/YOUR_TENANT_ID';
 ```
 
-`WATI_BASE` is on the same **Settings → API Docs** page (your tenant ID is the number
-after the host). No trailing slash. `ADMIN_WHATSAPP` is where booking alerts go —
-country code first, digits only.
+It's on the same **Settings → API Docs** page — your tenant ID is the number after the
+host. No trailing slash.
 
 Guest numbers are normalised automatically: a bare 10-digit Indian mobile gets `91`
 prefixed, spaces/`+`/dashes are stripped. Guests outside India must enter their number
 with the country code on the site.
 
-## 4. Create four WATI templates
+## 4. Create two WATI templates
 
 WhatsApp only allows business-initiated messages from **approved templates**, so create
 these in **WATI → Broadcast → Templates** and wait for Meta approval before going live.
 The names and variables must match exactly:
 
-| Template name | Variables | Goes to |
+| Template name | Variables | Sent when |
 |---|---|---|
-| `booking_confirmed` | `name`, `event`, `dates`, `amount`, `payment_id` | guest |
-| `payment_failed` | `name`, `event`, `reason` | guest |
-| `admin_new_booking` | `name`, `phone`, `event`, `amount`, `payment_id` | you |
-| `admin_unverified_payment` | `name`, `phone`, `event`, `payment_id`, `reason` | you |
+| `booking_confirmed` | `name`, `event`, `dates`, `amount`, `payment_id` | Razorpay confirms the payment captured |
+| `payment_failed` | `name`, `event`, `reason` | payment not captured, or amount mismatch |
 
 Suggested body for `booking_confirmed`:
 
@@ -89,20 +85,21 @@ const EXPECTED_AMOUNT_PAISE = { 'Know Thyself · Mussoorie': 17582000 };
 ```
 
 Add a line per event. If the amount Razorpay actually captured doesn't match, the
-booking is marked `unverified`, the guest gets **no** confirmation, and you get the
-`admin_unverified_payment` alert instead.
+booking takes the failure branch: the guest gets the `payment_failed` message instead
+of a confirmation, and the sheet row records the mismatch in its Reason column.
 
 ## Flow
 
 ```
-Webhook → Parse Booking → Paid?
-   ├─ yes → Razorpay Fetch Payment → Verify → Verified?
-   │            ├─ yes → WATI guest confirmation + WATI admin alert
-   │            └─ no  → WATI admin "unverified payment" alert
-   └─ no  → Failed? → WATI guest "payment failed"
-                          ↓
-                 Log to Google Sheet → Respond OK
+Webhook → Parse Booking → Razorpay Fetch Payment → Check Payment → Captured?
+   ├─ yes → WATI "booking confirmed" → Sheets append (status: booked)  ┐
+   └─ no  → WATI "payment failed"    → Sheets append (status: failed)  ┴→ Respond OK
 ```
 
-The WATI nodes use `neverError`, so a WhatsApp delivery problem never blocks the sheet
-log — check the node output in the execution if a message doesn't arrive.
+Both WATI nodes and both Sheets nodes use `neverError` / continue-on-error, so a
+WhatsApp or Sheets hiccup never aborts the run — open the execution and check that
+node's output if a message or row doesn't appear.
+
+Razorpay is the source of truth: the browser's claimed amount is ignored, and a
+missing or unknown `payment_id` returns a 404 that routes straight to the failure
+branch rather than stopping the workflow.
