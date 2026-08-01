@@ -6,39 +6,59 @@
         "httpMethod": "POST",
         "path": "d1cda85e-1973-4fba-8095-3e1712837cff",
         "responseMode": "responseNode",
-        "options": { "rawBody": true }
+        "options": {
+          "rawBody": true
+        }
       },
       "id": "webhook",
       "name": "Booking Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-760, 300],
+      "position": [
+        -760,
+        300
+      ],
       "webhookId": "d1cda85e-1973-4fba-8095-3e1712837cff"
     },
     {
       "parameters": {
-        "jsCode": "// ---- CONFIG — edit these three blocks only ----\n// Your WATI API endpoint, no trailing slash.\n// WATI -> Settings -> API Docs (looks like https://live-mt-server.wati.io/123456)\nconst WATI_BASE = 'https://live-mt-server.wati.io/YOUR_TENANT_ID';\n// Expected total per event, in paise. Guards against price tampering.\nconst EXPECTED_AMOUNT_PAISE = {\n  'Know Thyself · Mussoorie': 17582000\n};\n// -----------------------------------------------\n\n// The site posts text/plain so the body may arrive as a raw string.\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\nif (d && typeof d.data === 'string') { try { d = JSON.parse(d.data); } catch (e) {} }\n\n// WATI wants digits only with the country code: 919876543210\nfunction toWa(phone) {\n  let p = String(phone || '').replace(/\\D/g, '');\n  if (p.length === 10) p = '91' + p;                        // bare Indian mobile\n  if (p.length === 11 && p.charAt(0) === '0') p = '91' + p.slice(1);\n  return p;\n}\n\nreturn [{\n  json: {\n    name: d.name || '',\n    email: d.email || '',\n    phone: d.phone || '',\n    whatsapp: toWa(d.phone),\n    event_name: d.event_name || '',\n    event_dates: d.event_dates || '',\n    amount_display: d.amount_display || '',\n    payment_id: d.payment_id || '',\n    reason: d.reason || '',\n    expected_amount_paise: EXPECTED_AMOUNT_PAISE[d.event_name] || null,\n    wati_base: WATI_BASE\n  }\n}];"
+        "jsCode": "// ---- CONFIG ----\n// Expected total per event, in paise. Guards against price tampering.\nconst EXPECTED_AMOUNT_PAISE = {\n  'Know Thyself · Mussoorie': 17582000\n};\n// -----------------------------------------------\n\n// The site posts text/plain so the body may arrive as a raw string.\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\nif (d && typeof d.data === 'string') { try { d = JSON.parse(d.data); } catch (e) {} }\n\n// WATI wants digits only with the country code: 919876543210\nfunction toWa(phone) {\n  let p = String(phone || '').replace(/\\D/g, '');\n  if (p.length === 10) p = '91' + p;                        // bare Indian mobile\n  if (p.length === 11 && p.charAt(0) === '0') p = '91' + p.slice(1);\n  return p;\n}\n\nreturn [{\n  json: {\n    name: d.name || '',\n    email: d.email || '',\n    phone: d.phone || '',\n    waNumber: toWa(d.phone),\n    event_name: d.event_name || '',\n    event_dates: d.event_dates || '',\n    amount_display: d.amount_display || '',\n    payment_id: d.payment_id || '',\n    reason: d.reason || '',\n    expected_amount_paise: EXPECTED_AMOUNT_PAISE[d.event_name] || null\n  }\n}];"
       },
       "id": "parse",
       "name": "Parse Booking",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-540, 300]
+      "position": [
+        -540,
+        300
+      ]
     },
     {
       "parameters": {
         "url": "=https://api.razorpay.com/v1/payments/{{ $json.payment_id || 'none' }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
-        "options": { "response": { "response": { "neverError": true } } }
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
       },
       "id": "fetch-payment",
       "name": "Razorpay — Fetch Payment",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-320, 300],
+      "position": [
+        -320,
+        300
+      ],
       "credentials": {
-        "httpBasicAuth": { "id": "razorpay-live", "name": "Razorpay Live API Keys" }
+        "httpBasicAuth": {
+          "id": "razorpay-live",
+          "name": "Razorpay Live API Keys"
+        }
       },
       "notes": "Basic Auth credential: User = Razorpay Key ID, Password = Key Secret. neverError so a failed/missing payment falls through to the failure branch instead of stopping the run."
     },
@@ -50,17 +70,27 @@
       "name": "Check Payment",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-100, 300]
+      "position": [
+        -100,
+        300
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "version": 2 },
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
           "combinator": "and",
           "conditions": [
             {
               "id": "captured",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true },
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
               "leftValue": "={{ $json.is_captured }}"
             }
           ]
@@ -71,48 +101,87 @@
       "name": "Captured?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [120, 300]
+      "position": [
+        120,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.wati_base }}/api/v1/sendTemplateMessage?whatsappNumber={{ $json.whatsapp }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "url": "=https://live-mt-server.wati.io/320595/api/v1/sendTemplateMessage?whatsappNumber={{ $json.waNumber }}",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer PASTE_YOUR_WATI_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ template_name: 'booking_confirmed', broadcast_name: 'booking_confirmed', parameters: [ { name: 'name', value: $json.name }, { name: 'event', value: $json.event_name }, { name: 'dates', value: $json.event_dates }, { name: 'amount', value: $json.amount_display }, { name: 'payment_id', value: $json.payment_id } ] }) }}",
-        "options": { "response": { "response": { "neverError": true } } }
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
       },
       "id": "wati-confirmed",
       "name": "WATI — Booking Confirmed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [340, 180],
-      "credentials": {
-        "httpHeaderAuth": { "id": "wati-api", "name": "WATI API Token" }
-      },
+      "position": [
+        340,
+        180
+      ],
       "notes": "WATI template `booking_confirmed` — variables: name, event, dates, amount, payment_id"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.wati_base }}/api/v1/sendTemplateMessage?whatsappNumber={{ $json.whatsapp }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "url": "=https://live-mt-server.wati.io/320595/api/v1/sendTemplateMessage?whatsappNumber={{ $json.waNumber }}",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer PASTE_YOUR_WATI_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ template_name: 'payment_failed', broadcast_name: 'payment_failed', parameters: [ { name: 'name', value: $json.name }, { name: 'event', value: $json.event_name }, { name: 'reason', value: $json.reason || 'the payment could not be completed' } ] }) }}",
-        "options": { "response": { "response": { "neverError": true } } }
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
       },
       "id": "wati-failed",
       "name": "WATI — Payment Failed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [340, 420],
-      "credentials": {
-        "httpHeaderAuth": { "id": "wati-api", "name": "WATI API Token" }
-      },
+      "position": [
+        340,
+        420
+      ],
       "notes": "WATI template `payment_failed` — variables: name, event, reason"
     },
     {
@@ -123,7 +192,11 @@
           "value": "1JE_S0qRktHKFXzwrBwtD0Tzvz6BtfaasQxf1YLORE2I",
           "mode": "id"
         },
-        "sheetName": { "__rl": true, "value": "Bookings", "mode": "name" },
+        "sheetName": {
+          "__rl": true,
+          "value": "Bookings",
+          "mode": "name"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -146,9 +219,15 @@
       "name": "Sheets — Log Booking",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [580, 180],
+      "position": [
+        580,
+        180
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "sheets-knowthyself", "name": "Google Sheets — Know Thyself" }
+        "googleSheetsOAuth2Api": {
+          "id": "sheets-knowthyself",
+          "name": "Google Sheets — Know Thyself"
+        }
       },
       "alwaysOutputData": true,
       "onError": "continueRegularOutput"
@@ -161,7 +240,11 @@
           "value": "1JE_S0qRktHKFXzwrBwtD0Tzvz6BtfaasQxf1YLORE2I",
           "mode": "id"
         },
-        "sheetName": { "__rl": true, "value": "Bookings", "mode": "name" },
+        "sheetName": {
+          "__rl": true,
+          "value": "Bookings",
+          "mode": "name"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -184,9 +267,15 @@
       "name": "Sheets — Log Failure",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [580, 420],
+      "position": [
+        580,
+        420
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "sheets-knowthyself", "name": "Google Sheets — Know Thyself" }
+        "googleSheetsOAuth2Api": {
+          "id": "sheets-knowthyself",
+          "name": "Google Sheets — Know Thyself"
+        }
       },
       "alwaysOutputData": true,
       "onError": "continueRegularOutput"
@@ -201,26 +290,125 @@
       "name": "Respond OK",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [820, 300]
+      "position": [
+        820,
+        300
+      ]
     }
   ],
   "connections": {
-    "Booking Webhook": { "main": [[{ "node": "Parse Booking", "type": "main", "index": 0 }]] },
-    "Parse Booking": { "main": [[{ "node": "Razorpay — Fetch Payment", "type": "main", "index": 0 }]] },
-    "Razorpay — Fetch Payment": { "main": [[{ "node": "Check Payment", "type": "main", "index": 0 }]] },
-    "Check Payment": { "main": [[{ "node": "Captured?", "type": "main", "index": 0 }]] },
-    "Captured?": {
+    "Booking Webhook": {
       "main": [
-        [{ "node": "WATI — Booking Confirmed", "type": "main", "index": 0 }],
-        [{ "node": "WATI — Payment Failed", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Parse Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
-    "WATI — Booking Confirmed": { "main": [[{ "node": "Sheets — Log Booking", "type": "main", "index": 0 }]] },
-    "WATI — Payment Failed": { "main": [[{ "node": "Sheets — Log Failure", "type": "main", "index": 0 }]] },
-    "Sheets — Log Booking": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
-    "Sheets — Log Failure": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] }
+    "Parse Booking": {
+      "main": [
+        [
+          {
+            "node": "Razorpay — Fetch Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Razorpay — Fetch Payment": {
+      "main": [
+        [
+          {
+            "node": "Check Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Payment": {
+      "main": [
+        [
+          {
+            "node": "Captured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Captured?": {
+      "main": [
+        [
+          {
+            "node": "WATI — Booking Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WATI — Payment Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WATI — Booking Confirmed": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WATI — Payment Failed": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Booking": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Failure": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "pinData": {},
-  "meta": { "instanceId": "knowthyself" }
+  "meta": {
+    "instanceId": "knowthyself"
+  }
 }

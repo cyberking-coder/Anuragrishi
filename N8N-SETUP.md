@@ -12,31 +12,37 @@ repo. Once n8n is live, also **delete the Apps Script deployment** at
 ## 1. Import
 n8n → **Workflows → Import from File** → pick `n8n-booking-workflow.json`.
 
-## 2. Create the three credentials
+## 2. Create the two credentials
 
 | Credential (n8n type) | Fields |
 |---|---|
 | **Basic Auth** — name it `Razorpay Live API Keys` | User = `rzp_live_GtCPbMMCPYFygU`, Password = your **live Key Secret** |
-| **Header Auth** — `WATI API Token` | Name = `Authorization`, Value = `Bearer <your WATI access token>` |
 | **Google Sheets OAuth2** — `Google Sheets — Know Thyself` | sheet `1JE_S0qRktHKFXzwrBwtD0Tzvz6BtfaasQxf1YLORE2I`, tab `Bookings` |
 
 Then open each node showing a red credential warning and re-select the credential you
-just made. The Razorpay secret and the WATI token live **only** in n8n credentials —
-never in this repo and never in the website HTML.
+just made. The Razorpay secret lives **only** in the n8n credential — never in this
+repo and never in the website HTML.
 
-Get the WATI token from **WATI → Settings → API Docs → Access Token**. Copy the whole
-value; if WATI shows it already starting with `Bearer `, don't add a second `Bearer`.
+## 3. Paste the WATI token into both WATI nodes
 
-## 3. Set your WATI endpoint
+The two WATI nodes use an inline `Authorization` header instead of a credential, so the
+token has to be pasted into each one. Open **WATI — Booking Confirmed** and
+**WATI — Payment Failed**, and in *Header Parameters* replace
 
-Open the **Parse Booking** node and edit the config block at the top:
-
-```js
-const WATI_BASE = 'https://live-mt-server.wati.io/YOUR_TENANT_ID';
+```
+Bearer PASTE_YOUR_WATI_TOKEN_HERE
 ```
 
-It's on the same **Settings → API Docs** page — your tenant ID is the number after the
-host. No trailing slash.
+with your real token from **WATI → Settings → API Docs → Access Token**. If WATI already
+shows the value starting with `Bearer `, don't add a second one.
+
+The endpoint is already set to your tenant:
+`https://live-mt-server.wati.io/320595/api/v1/sendTemplateMessage`.
+
+> **Note:** an inline token is saved inside the workflow and appears in any export, so
+> **never commit a filled-in copy of this file back to the repo.** To avoid that risk
+> entirely, switch both nodes to *Authentication → Generic → Header Auth* and store the
+> token in a credential instead — same request, token kept out of the JSON.
 
 Guest numbers are normalised automatically: a bare 10-digit Indian mobile gets `91`
 prefixed, spaces/`+`/dashes are stripped. Guests outside India must enter their number
