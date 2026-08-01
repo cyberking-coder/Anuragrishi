@@ -233,7 +233,10 @@
           try {
             var rzp = new Razorpay(options);
             rzp.on('payment.failed', function (r) {
+              // Full Razorpay error object — open the browser console to read code/step/source.
+              try { console.error('Razorpay payment.failed:', JSON.stringify(r.error, null, 2)); } catch (e) { console.error(r); }
               var reason = (r.error && r.error.description) ? r.error.description : 'please try again.';
+              if (r.error && r.error.reason && r.error.reason !== 'NA') reason += ' [' + r.error.reason + ']';
               notifyBookingHook(Object.assign({ status: 'failed', reason: reason, payment_id: (r.error && r.error.metadata && r.error.metadata.payment_id) || '' }, base));
               alert('Payment failed: ' + reason + '\nWe\'ve emailed you the details.');
               btn.disabled = false;
