@@ -4,7 +4,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "knowthyself-booking",
+        "path": "d1cda85e-1973-4fba-8095-3e1712837cff",
         "responseMode": "responseNode",
         "options": { "rawBody": true }
       },
@@ -13,7 +13,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [-720, 300],
-      "webhookId": "knowthyself-booking"
+      "webhookId": "d1cda85e-1973-4fba-8095-3e1712837cff"
     },
     {
       "parameters": {

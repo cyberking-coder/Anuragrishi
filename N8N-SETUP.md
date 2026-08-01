@@ -27,10 +27,16 @@ If your n8n has no Gmail/Sheets OAuth set up, swap the Gmail nodes for **Send Em
 and delete the Sheets node — the rest of the flow is unchanged.
 
 ## 3. Activate + point the site at it
-Activate the workflow, copy the **Production** webhook URL
-(`https://<your-n8n>/webhook/knowthyself-booking`), and paste it as `WEBHOOK_URL`
-in `event-mussoorie.html` — it currently reads `'REPLACE_WITH_N8N_WEBHOOK_URL'`.
-Until you do, checkout still works but no emails or sheet rows are produced.
+The site already posts to the production webhook:
+
+```
+https://n8n.srv965659.hstgr.cloud/webhook/d1cda85e-1973-4fba-8095-3e1712837cff
+```
+
+set as `WEBHOOK_URL` in `event-mussoorie.html`. The workflow's Booking Webhook node
+uses that same path, so an import matches the URL as-is. **Activate the workflow** —
+the `/webhook/` URL only responds when the workflow is active (`/webhook-test/` is the
+manual-run URL and works only while you're listening in the editor).
 
 ## 4. Amount tampering guard
 Expected totals live in the **Parse Booking** node:

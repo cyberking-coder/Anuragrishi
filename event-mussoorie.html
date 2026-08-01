@@ -198,8 +198,8 @@
       var AMOUNT_PAISE = 17582000; // ₹1,75,820 (₹1,49,000 + 18% GST)
       var EVENT_NAME   = 'Know Thyself · Mussoorie';
       var EVENT_DATES  = '14 – 19 Nov 2026';
-      // n8n production webhook: https://<your-n8n>/webhook/knowthyself-booking
-      var WEBHOOK_URL  = 'REPLACE_WITH_N8N_WEBHOOK_URL';
+      // n8n production webhook (Booking Webhook node)
+      var WEBHOOK_URL  = 'https://n8n.srv965659.hstgr.cloud/webhook/d1cda85e-1973-4fba-8095-3e1712837cff';
 
       function notifyBookingHook(payload) {
         if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return;
