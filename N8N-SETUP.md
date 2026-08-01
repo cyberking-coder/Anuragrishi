@@ -87,8 +87,11 @@ works only while you're listening in the editor).
 Expected totals live in the same **Parse Booking** config block:
 
 ```js
-const EXPECTED_AMOUNT_PAISE = { 'Know Thyself · Mussoorie': 17582000 };
+const EXPECTED_AMOUNT_PAISE = { 'Know Thyself · Mussoorie': 100 };  // ₹1 — LIVE TEST
 ```
+
+⚠️ **Currently in live test mode at ₹1.** This value must always equal `AMOUNT_PAISE` in
+`event-mussoorie.html`. To go live for real, set **both** back to `17582000` (₹1,75,820).
 
 Add a line per event. If the amount Razorpay actually captured doesn't match, the
 booking takes the failure branch: the guest gets the `payment_failed` message instead
