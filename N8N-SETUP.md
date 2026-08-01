@@ -9,8 +9,22 @@ This replaces the old Google Apps Script automation, which has been deleted from
 repo. Once n8n is live, also **delete the Apps Script deployment** at
 <https://script.google.com> so the old `/exec` webhook stops accepting posts.
 
-## 1. Import
-n8n → **Workflows → Import from File** → pick `n8n-booking-workflow.json`.
+## 1. Import both workflows
+
+n8n → **Workflows → Import from File**, once for each:
+
+| File | What it does |
+|---|---|
+| `n8n-create-order-workflow.json` | called *before* checkout opens — creates a Razorpay order server-side and returns its `order_id` |
+| `n8n-booking-workflow.json` | called *after* the payment — verifies it, sends WhatsApp, logs to Sheets |
+
+Both use the same `Razorpay Live API Keys` credential. **Activate both.**
+
+The create-order webhook must be reachable from the browser, so its Respond node
+sends `Access-Control-Allow-Origin: *`. Its URL is
+`https://n8n.srv965659.hstgr.cloud/webhook/create-order`, already set as `ORDER_URL`
+in `event-mussoorie.html`. If your n8n assigns a different path on import, update
+`ORDER_URL` to match — checkout won't open otherwise.
 
 ## 2. Create the two credentials
 
@@ -82,20 +96,28 @@ that same path, so an import matches the URL as-is. **Activate the workflow** �
 `/webhook/` URL only responds when active (`/webhook-test/` is the manual-run URL and
 works only while you're listening in the editor).
 
-## 6. Amount tampering guard
+## 6. Where the price lives
 
-Expected totals live in the same **Parse Booking** config block:
+The price is set **server-side**, in the **Look Up Price** node of the create-order
+workflow — the browser never sends an amount:
+
+```js
+const EVENTS = {
+  mussoorie: { name: 'Know Thyself · Mussoorie', dates: '14 – 19 Nov 2026', amount_paise: 100 }
+};
+```
+
+The booking workflow keeps a matching guard in its **Parse Booking** node:
 
 ```js
 const EXPECTED_AMOUNT_PAISE = { 'Know Thyself · Mussoorie': 100 };  // ₹1 — LIVE TEST
 ```
 
-⚠️ **Currently in live test mode at ₹1.** This value must always equal `AMOUNT_PAISE` in
-`event-mussoorie.html`. To go live for real, set **both** back to `17582000` (₹1,75,820).
+⚠️ **Currently in live test mode at ₹1.** Change **both** to `17582000` (₹1,75,820) to go
+live for real. If they disagree, every payment lands on the failure branch.
 
-Add a line per event. If the amount Razorpay actually captured doesn't match, the
-booking takes the failure branch: the guest gets the `payment_failed` message instead
-of a confirmation, and the sheet row records the mismatch in its Reason column.
+Add an entry per event in both places. The key in `EVENTS` (`mussoorie`) is what the page
+sends as `EVENT_KEY`; an unknown key is rejected with a 400 before any order is created.
 
 ## Flow
 
