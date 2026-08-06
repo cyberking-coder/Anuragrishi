@@ -1,0 +1,135 @@
+{
+  "name": "Know Thyself — Create Razorpay Order",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create-order",
+        "responseMode": "responseNode",
+        "options": { "rawBody": true }
+      },
+      "id": "webhook",
+      "name": "Create Order Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-640, 300],
+      "webhookId": "create-order"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- SERVER-SIDE PRICE LIST — the browser cannot influence these ----\n// LIVE TEST MODE: amount_paise 100 = ₹1. Real price is 17582000 (₹1,75,820).\nconst EVENTS = {\n  mussoorie: {\n    name: 'Know Thyself · Mussoorie',\n    dates: '14 – 19 Nov 2026',\n    amount_paise: 100\n  }\n};\n// ---------------------------------------------------------------------\n\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\n\nconst event = EVENTS[String(d.event || '').toLowerCase()];\nif (!event) {\n  return [{ json: { ok: false, error: 'unknown event: ' + (d.event || '(none)') } }];\n}\n\n// Razorpay receipts are capped at 40 characters.\nconst receipt = ('kt_' + Date.now() + '_' + String(d.event).slice(0, 12)).slice(0, 40);\n\nreturn [{\n  json: {\n    ok: true,\n    event_key: d.event,\n    event_name: event.name,\n    event_dates: event.dates,\n    amount_paise: event.amount_paise,\n    receipt,\n    guest_name: String(d.name || '').slice(0, 100),\n    guest_email: String(d.email || '').slice(0, 100),\n    guest_phone: String(d.phone || '').slice(0, 20)\n  }\n}];"
+      },
+      "id": "price",
+      "name": "Look Up Price",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-420, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "known-event",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true },
+              "leftValue": "={{ $json.ok }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "known",
+      "name": "Known Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-200, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.razorpay.com/v1/orders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ amount: $json.amount_paise, currency: 'INR', receipt: $json.receipt, notes: { event: $json.event_name, dates: $json.event_dates, name: $json.guest_name, email: $json.guest_email, phone: $json.guest_phone } }) }}",
+        "options": { "response": { "response": { "neverError": true } } }
+      },
+      "id": "create-order",
+      "name": "Razorpay — Create Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [20, 180],
+      "credentials": {
+        "httpBasicAuth": { "id": "razorpay-live", "name": "Razorpay Live API Keys" }
+      },
+      "notes": "Same Basic Auth credential as the booking workflow: User = Key ID, Password = Key Secret."
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $('Look Up Price').first().json;\nconst order = $input.first().json || {};\n\nif (!order.id) {\n  return [{ json: {\n    ok: false,\n    error: (order.error && order.error.description) || 'could not create order'\n  } }];\n}\n\nreturn [{ json: {\n  ok: true,\n  order_id: order.id,\n  amount: order.amount,\n  currency: order.currency,\n  event_name: src.event_name,\n  event_dates: src.event_dates\n} }];"
+      },
+      "id": "shape",
+      "name": "Shape Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 180]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" },
+              { "name": "Cache-Control", "value": "no-store" }
+            ]
+          }
+        }
+      },
+      "id": "respond-ok",
+      "name": "Respond — Order",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [460, 180]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: $json.error || 'unknown event' }) }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" },
+              { "name": "Cache-Control", "value": "no-store" }
+            ]
+          }
+        }
+      },
+      "id": "respond-bad",
+      "name": "Respond — Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [240, 420]
+    }
+  ],
+  "connections": {
+    "Create Order Webhook": { "main": [[{ "node": "Look Up Price", "type": "main", "index": 0 }]] },
+    "Look Up Price": { "main": [[{ "node": "Known Event?", "type": "main", "index": 0 }]] },
+    "Known Event?": {
+      "main": [
+        [{ "node": "Razorpay — Create Order", "type": "main", "index": 0 }],
+        [{ "node": "Respond — Rejected", "type": "main", "index": 0 }]
+      ]
+    },
+    "Razorpay — Create Order": { "main": [[{ "node": "Shape Response", "type": "main", "index": 0 }]] },
+    "Shape Response": { "main": [[{ "node": "Respond — Order", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": { "instanceId": "knowthyself" }
+}

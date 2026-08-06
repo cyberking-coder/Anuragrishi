@@ -27,7 +27,7 @@
     <!-- ===== HERO ===== -->
     <div class="evd2-hero">
       <div class="evd2-gallery">
-        <div class="evd2-main"><img src="mussorie-event.jpeg" alt="Know Thyself Mussoorie Retreat" /></div>
+        <div class="evd2-main"><img src="mussorie-new.jpeg" alt="Know Thyself · Mussoorie — 6-day soulful retreat with Anurag Rishi, 14–19 November 2026" /></div>
       </div>
 
       <div class="evd2-info">
@@ -194,16 +194,14 @@
 
       /* ---- Razorpay reserve ---- */
       // Key ID is public by design; the Key Secret lives only in the n8n credential.
-      var RAZORPAY_KEY = 'rzp_live_RhCqpmLp2p4CaH';
-      // ⚠️ LIVE TEST MODE — charging ₹1 so the live flow can be verified end to end.
-      // REVERT to 17582000 (₹1,75,820 = ₹1,49,000 + 18% GST) before taking real bookings,
-      // and change EXPECTED_AMOUNT_PAISE in the n8n Parse Booking node to match.
-      var AMOUNT_PAISE = 100; // ₹1 — TEST
-      // var AMOUNT_PAISE = 17582000; // ₹1,75,820 — REAL PRICE
-      var EVENT_NAME   = 'Know Thyself · Mussoorie';
-      var EVENT_DATES  = '14 – 19 Nov 2026';
-      // n8n production webhook (Booking Webhook node)
-      var WEBHOOK_URL  = 'https://n8n.srv965659.hstgr.cloud/webhook/d1cda85e-1973-4fba-8095-3e1712837cff';
+      var RAZORPAY_KEY  = 'rzp_live_TMQEp7ZTrkukW4';
+      var EVENT_KEY     = 'mussoorie';                 // server looks the price up from this
+      var EVENT_NAME    = 'Know Thyself · Mussoorie';
+      var EVENT_DATES   = '14 – 19 Nov 2026';
+      // n8n: Create Order workflow — returns a signed Razorpay order_id and the amount.
+      var ORDER_URL     = 'https://n8n.srv965659.hstgr.cloud/webhook/create-order';
+      // n8n: Booking workflow — receives the outcome (Booking Webhook node).
+      var WEBHOOK_URL   = 'https://n8n.srv965659.hstgr.cloud/webhook/d1cda85e-1973-4fba-8095-3e1712837cff';
 
       function notifyBookingHook(payload) {
         if (!WEBHOOK_URL || WEBHOOK_URL.indexOf('REPLACE_WITH') !== -1) return;
@@ -212,6 +210,16 @@
         try { fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, keepalive: true }).catch(function () {}); } catch (e) {}
       }
       function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+      function inr(paise) { return '₹' + Number(paise / 100).toLocaleString('en-IN'); }
+
+      // text/plain keeps this a "simple" CORS request, so no preflight is needed.
+      function createOrder(guest) {
+        return fetch(ORDER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ event: EVENT_KEY, name: guest.name, email: guest.email, phone: guest.phone })
+        }).then(function (r) { return r.json(); });
+      }
 
       var btn = document.getElementById('reserveBtn');
       if (btn) {
@@ -219,31 +227,61 @@
           var guest = { name: val('guestName'), email: val('guestEmail'), phone: val('guestPhone') };
           if (!guest.name || !guest.email || !guest.phone) { alert('Please enter your name, email and phone to reserve your seat.'); return; }
           if (typeof Razorpay === 'undefined') { alert('Payment could not load. Please check your connection and try again.'); return; }
-          var base = { name: guest.name, email: guest.email, phone: guest.phone, event_name: EVENT_NAME, event_dates: EVENT_DATES, amount: AMOUNT_PAISE / 100, amount_display: '₹' + (AMOUNT_PAISE / 100).toLocaleString('en-IN') };
-          var options = {
-            key: RAZORPAY_KEY, amount: AMOUNT_PAISE, currency: 'INR',
-            name: 'Know Thyself · Mussoorie', description: 'Mussoorie Retreat · ' + EVENT_DATES + ' — Seat Reservation',
-            theme: { color: '#4f9d3f' }, prefill: { name: guest.name, email: guest.email, contact: guest.phone }, notes: { event: 'Mussoorie', dates: EVENT_DATES },
-            handler: function (response) {
-              notifyBookingHook(Object.assign({ status: 'booked', payment_id: response.razorpay_payment_id }, base));
-              window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) + '&amt=' + (AMOUNT_PAISE / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
-            },
-            modal: { ondismiss: function () { btn.disabled = false; } }
-          };
-          try {
+
+          btn.disabled = true;
+          createOrder(guest).then(function (order) {
+            if (!order || !order.ok || !order.order_id) {
+              throw new Error((order && order.error) || 'could not start checkout');
+            }
+
+            var base = {
+              name: guest.name, email: guest.email, phone: guest.phone,
+              event_name: EVENT_NAME, event_dates: EVENT_DATES,
+              amount: order.amount / 100, amount_display: inr(order.amount)
+            };
+
+            var options = {
+              key: RAZORPAY_KEY,
+              order_id: order.order_id,          // amount and currency come from the order
+              name: 'Know Thyself · Mussoorie',
+              description: 'Mussoorie Retreat · ' + EVENT_DATES + ' — Seat Reservation',
+              theme: { color: '#4f9d3f' },
+              prefill: { name: guest.name, email: guest.email, contact: guest.phone },
+              notes: { event: 'Mussoorie', dates: EVENT_DATES },
+              handler: function (response) {
+                notifyBookingHook(Object.assign({
+                  status: 'booked',
+                  payment_id: response.razorpay_payment_id,
+                  order_id: response.razorpay_order_id,
+                  signature: response.razorpay_signature
+                }, base));
+                window.location.href = 'success.html?pid=' + encodeURIComponent(response.razorpay_payment_id) +
+                  '&amt=' + (order.amount / 100) + '&event=' + encodeURIComponent(EVENT_NAME);
+              },
+              modal: { ondismiss: function () { btn.disabled = false; } }
+            };
+
             var rzp = new Razorpay(options);
             rzp.on('payment.failed', function (r) {
               // Full Razorpay error object — open the browser console to read code/step/source.
               try { console.error('Razorpay payment.failed:', JSON.stringify(r.error, null, 2)); } catch (e) { console.error(r); }
               var reason = (r.error && r.error.description) ? r.error.description : 'please try again.';
               if (r.error && r.error.reason && r.error.reason !== 'NA') reason += ' [' + r.error.reason + ']';
-              notifyBookingHook(Object.assign({ status: 'failed', reason: reason, payment_id: (r.error && r.error.metadata && r.error.metadata.payment_id) || '' }, base));
-              alert('Payment failed: ' + reason + '\nWe\'ve emailed you the details.');
+              notifyBookingHook(Object.assign({
+                status: 'failed', reason: reason,
+                payment_id: (r.error && r.error.metadata && r.error.metadata.payment_id) || '',
+                order_id: order.order_id
+              }, base));
+              alert('Payment failed: ' + reason);
               btn.disabled = false;
             });
-            btn.disabled = true; rzp.open();
+            rzp.open();
             setTimeout(function () { btn.disabled = false; }, 1500);
-          } catch (e) { btn.disabled = false; alert('Unable to start checkout. Please try again.'); }
+          }).catch(function (e) {
+            console.error('create-order failed:', e);
+            btn.disabled = false;
+            alert('Unable to start checkout right now. Please try again in a moment.');
+          });
         });
       }
     })();
