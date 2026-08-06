@@ -30,7 +30,7 @@ in `event-mussoorie.html`. If your n8n assigns a different path on import, updat
 
 | Credential (n8n type) | Fields |
 |---|---|
-| **Basic Auth** — name it `Razorpay Live API Keys` | User = `rzp_live_RhCqpmLp2p4CaH`, Password = your **live Key Secret** |
+| **Basic Auth** — name it `Razorpay Live API Keys` | User = `rzp_live_TMQEp7ZTrkukW4`, Password = your **live Key Secret** |
 | **Google Sheets OAuth2** — `Google Sheets — Know Thyself` | sheet `1JE_S0qRktHKFXzwrBwtD0Tzvz6BtfaasQxf1YLORE2I`, tab `Bookings` |
 
 Then open each node showing a red credential warning and re-select the credential you
