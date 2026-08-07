@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const booking = $('Parse Booking').first().json;\nconst pay = $input.first().json || {};\n\n// Razorpay is the source of truth — not what the browser claimed.\nconst captured = pay.status === 'captured' || pay.status === 'authorized';\n\nconst display = typeof pay.amount === 'number'\n  ? '₹' + Number(pay.amount / 100).toLocaleString('en-IN')\n  : booking.amount_display;\n\nconst apiError = pay.error && (pay.error.description || pay.error.code);\nconst reason = captured\n  ? ''\n  : (apiError\n      ? ('Razorpay API: ' + apiError)\n      : ('payment not captured (status=' + (pay.status || 'not found') + ')'));\n\nreturn [{\n  json: {\n    ...booking,\n    is_captured: Boolean(captured),\n    status: captured ? 'booked' : 'failed',\n    amount_display: display,\n    reason\n  }\n}];"
+        "jsCode": "const booking = $('Parse Booking').first().json;\nconst pay = $input.first().json || {};\n\n// Razorpay is the source of truth — not what the browser claimed.\nconst captured = pay.status === 'captured' || pay.status === 'authorized';\n\nconst display = typeof pay.amount === 'number'\n  ? '₹' + Number(pay.amount / 100).toLocaleString('en-IN')\n  : booking.amount_display;\n\n// Two versions of why it failed:\n//   reason        — plain language, sent to the guest on WhatsApp\n//   reason_detail — technical, logged to the sheet for you\nconst apiError = pay.error && (pay.error.description || pay.error.code);\nlet reason = '';\nlet detail = '';\n\nif (!captured) {\n  detail = apiError\n    ? ('Razorpay API: ' + apiError)\n    : ('payment not captured (status=' + (pay.status || 'not found') + ')');\n\n  switch (pay.status) {\n    case 'failed':\n      reason = (pay.error_description || 'the payment was declined');\n      break;\n    case 'created':\n      reason = 'the payment was started but not completed';\n      break;\n    case 'refunded':\n      reason = 'the payment was refunded';\n      break;\n    default:\n      reason = 'the payment could not be confirmed';\n  }\n}\n\nreturn [{\n  json: {\n    ...booking,\n    is_captured: Boolean(captured),\n    status: captured ? 'booked' : 'failed',\n    amount_display: display,\n    reason,\n    reason_detail: detail\n  }\n}];"
       },
       "id": "check",
       "name": "Check Payment",
@@ -209,7 +209,7 @@
             "Dates": "={{ $('Check Payment').item.json.event_dates }}",
             "Amount": "={{ $('Check Payment').item.json.amount_display }}",
             "Payment ID": "={{ $('Check Payment').item.json.payment_id }}",
-            "Reason": "={{ $('Check Payment').item.json.reason }}"
+            "Reason": "={{ $('Check Payment').item.json.reason_detail }}"
           },
           "matchingColumns": []
         },
@@ -257,7 +257,7 @@
             "Dates": "={{ $('Check Payment').item.json.event_dates }}",
             "Amount": "={{ $('Check Payment').item.json.amount_display }}",
             "Payment ID": "={{ $('Check Payment').item.json.payment_id }}",
-            "Reason": "={{ $('Check Payment').item.json.reason }}"
+            "Reason": "={{ $('Check Payment').item.json.reason_detail }}"
           },
           "matchingColumns": []
         },
