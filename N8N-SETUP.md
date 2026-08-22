@@ -98,8 +98,7 @@ works only while you're listening in the editor).
 
 ## 6. Where the price lives
 
-The price is set **server-side**, in the **Look Up Price** node of the create-order
-workflow — the browser never sends an amount:
+One place only — the **Look Up Price** node of the create-order workflow:
 
 ```js
 const EVENTS = {
@@ -107,17 +106,16 @@ const EVENTS = {
 };
 ```
 
-The booking workflow keeps a matching guard in its **Parse Booking** node:
+⚠️ **Currently in live test mode at ₹1** (`amount_paise: 100`). Set it to `17582000`
+(₹1,75,820) to go live, and update the displayed price in `event-mussoorie.html`.
 
-```js
-const EXPECTED_AMOUNT_PAISE = { 'Know Thyself · Mussoorie': 100 };  // ₹1 — LIVE TEST
-```
+The booking workflow no longer keeps its own copy of the expected amount. Because the
+order is created server-side the browser cannot influence what gets charged, so
+Razorpay's captured status is the only thing worth checking — and there are no longer
+two numbers that must be kept in sync.
 
-⚠️ **Currently in live test mode at ₹1.** Change **both** to `17582000` (₹1,75,820) to go
-live for real. If they disagree, every payment lands on the failure branch.
-
-Add an entry per event in both places. The key in `EVENTS` (`mussoorie`) is what the page
-sends as `EVENT_KEY`; an unknown key is rejected with a 400 before any order is created.
+The key in `EVENTS` (`mussoorie`) is what the page sends as `EVENT_KEY`; an unknown key
+is rejected with a 400 before any order is created.
 
 ## Flow
 

@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ---- CONFIG ----\n// Expected total per event, in paise. Guards against price tampering.\n// MUST match AMOUNT_PAISE in event-mussoorie.html or every booking fails the check.\n// LIVE TEST MODE: 100 = ₹1. Real price is 17582000 (₹1,75,820).\nconst EXPECTED_AMOUNT_PAISE = {\n  'Know Thyself · Mussoorie': 100\n};\n// -----------------------------------------------\n\n// The site posts text/plain so the body may arrive as a raw string.\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\nif (d && typeof d.data === 'string') { try { d = JSON.parse(d.data); } catch (e) {} }\n\n// WATI wants digits only with the country code: 919876543210\nfunction toWa(phone) {\n  let p = String(phone || '').replace(/\\D/g, '');\n  if (p.length === 10) p = '91' + p;                        // bare Indian mobile\n  if (p.length === 11 && p.charAt(0) === '0') p = '91' + p.slice(1);\n  return p;\n}\n\nreturn [{\n  json: {\n    name: d.name || '',\n    email: d.email || '',\n    phone: d.phone || '',\n    waNumber: toWa(d.phone),\n    event_name: d.event_name || '',\n    event_dates: d.event_dates || '',\n    amount_display: d.amount_display || '',\n    payment_id: d.payment_id || '',\n    reason: d.reason || '',\n    expected_amount_paise: EXPECTED_AMOUNT_PAISE[d.event_name] || null\n  }\n}];"
+        "jsCode": "// The amount is set server-side by the create-order workflow, so the browser\n// cannot influence what gets charged. Razorpay's captured status is therefore\n// the only thing worth checking — no expected-amount table to keep in sync.\n\n// The site posts text/plain so the body may arrive as a raw string.\nconst raw = $input.first().json;\nlet d = raw.body ?? raw;\nif (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = {}; } }\nif (d && typeof d.data === 'string') { try { d = JSON.parse(d.data); } catch (e) {} }\n\n// WATI wants digits only with the country code: 919876543210\nfunction toWa(phone) {\n  let p = String(phone || '').replace(/\\D/g, '');\n  if (p.length === 10) p = '91' + p;                        // bare Indian mobile\n  if (p.length === 11 && p.charAt(0) === '0') p = '91' + p.slice(1);\n  return p;\n}\n\nreturn [{\n  json: {\n    name: d.name || '',\n    email: d.email || '',\n    phone: d.phone || '',\n    waNumber: toWa(d.phone),\n    event_name: d.event_name || '',\n    event_dates: d.event_dates || '',\n    amount_display: d.amount_display || '',\n    payment_id: d.payment_id || '',\n    reason: d.reason || '',\n    order_id: d.order_id || ''\n  }\n}];"
       },
       "id": "parse",
       "name": "Parse Booking",
@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const booking = $('Parse Booking').first().json;\nconst pay = $input.first().json || {};\n\n// Razorpay is the source of truth — not what the browser claimed.\nconst captured = pay.status === 'captured' || pay.status === 'authorized';\nconst expected = booking.expected_amount_paise;\nconst amountOk = !expected || pay.amount === expected;\n\nconst display = typeof pay.amount === 'number'\n  ? '₹' + Number(pay.amount / 100).toLocaleString('en-IN')\n  : booking.amount_display;\n\nlet reason = booking.reason;\nif (!captured) reason = 'payment not captured (status=' + (pay.status || 'not found') + ')';\nelse if (!amountOk) reason = 'amount mismatch: paid ' + pay.amount + ', expected ' + expected;\n\nreturn [{\n  json: {\n    ...booking,\n    is_captured: Boolean(captured && amountOk),\n    status: (captured && amountOk) ? 'booked' : 'failed',\n    amount_display: display,\n    reason: reason || ''\n  }\n}];"
+        "jsCode": "const booking = $('Parse Booking').first().json;\nconst pay = $input.first().json || {};\n\n// Razorpay is the source of truth — not what the browser claimed.\nconst captured = pay.status === 'captured' || pay.status === 'authorized';\n\nconst display = typeof pay.amount === 'number'\n  ? '₹' + Number(pay.amount / 100).toLocaleString('en-IN')\n  : booking.amount_display;\n\n// Two versions of why it failed:\n//   reason        — plain language, sent to the guest on WhatsApp\n//   reason_detail — technical, logged to the sheet for you\nconst apiError = pay.error && (pay.error.description || pay.error.code);\nlet reason = '';\nlet detail = '';\n\nif (!captured) {\n  detail = apiError\n    ? ('Razorpay API: ' + apiError)\n    : ('payment not captured (status=' + (pay.status || 'not found') + ')');\n\n  switch (pay.status) {\n    case 'failed':\n      reason = (pay.error_description || 'the payment was declined');\n      break;\n    case 'created':\n      reason = 'the payment was started but not completed';\n      break;\n    case 'refunded':\n      reason = 'the payment was refunded';\n      break;\n    default:\n      reason = 'the payment could not be confirmed';\n  }\n}\n\nreturn [{\n  json: {\n    ...booking,\n    is_captured: Boolean(captured),\n    status: captured ? 'booked' : 'failed',\n    amount_display: display,\n    reason,\n    reason_detail: detail\n  }\n}];"
       },
       "id": "check",
       "name": "Check Payment",
@@ -209,7 +209,7 @@
             "Dates": "={{ $('Check Payment').item.json.event_dates }}",
             "Amount": "={{ $('Check Payment').item.json.amount_display }}",
             "Payment ID": "={{ $('Check Payment').item.json.payment_id }}",
-            "Reason": "={{ $('Check Payment').item.json.reason }}"
+            "Reason": "={{ $('Check Payment').item.json.reason_detail }}"
           },
           "matchingColumns": []
         },
@@ -257,7 +257,7 @@
             "Dates": "={{ $('Check Payment').item.json.event_dates }}",
             "Amount": "={{ $('Check Payment').item.json.amount_display }}",
             "Payment ID": "={{ $('Check Payment').item.json.payment_id }}",
-            "Reason": "={{ $('Check Payment').item.json.reason }}"
+            "Reason": "={{ $('Check Payment').item.json.reason_detail }}"
           },
           "matchingColumns": []
         },
