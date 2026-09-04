@@ -195,7 +195,7 @@
       /* ---- Razorpay reserve (same setup as Mussoorie) ---- */
       // Key ID is public by design; the Key Secret lives only in the n8n credential.
       var RAZORPAY_KEY  = 'rzp_live_TMQEp7ZTrkukW4';
-      var EVENT_KEY     = 'lonavla';                   // server looks the price up from this
+      var EVENT_KEY     = 'mussoorie';                 // reuse Mussoorie's price/config in n8n
       var EVENT_NAME    = 'Know Thyself · Lonavla';
       var EVENT_DATES   = '12 – 17 Dec 2026';
       // n8n: Create Order workflow — returns a signed Razorpay order_id and the amount.
