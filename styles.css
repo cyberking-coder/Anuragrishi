@@ -308,6 +308,12 @@ em { font-style: normal; color: var(--green-deep); }
 }
 .ret-badge--wait { background: #e0a021; }
 
+/* Housefull — frozen, not clickable */
+.ret-badge--full { background: #b23b3b; }
+.ret-card--full { cursor: not-allowed; pointer-events: none; }
+.ret-card--full .ret-loc { color: var(--muted); }
+.ret-card--full .ret-mon, .ret-card--full .ret-day, .ret-card--full .ret-type, .ret-card--full .ret-range { opacity: .7; }
+
 .ret-date { margin-bottom: 22px; }
 .ret-mon { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 500; color: var(--ink-soft); padding-bottom: 4px; border-bottom: 3px solid var(--green); }
 .ret-day { display: block; font-family: 'Poppins', sans-serif; font-size: 44px; font-weight: 700; color: var(--ink); line-height: 1.05; margin-top: 6px; }
